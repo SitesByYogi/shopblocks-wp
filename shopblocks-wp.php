@@ -160,3 +160,8 @@ function shopblocks_add_products_shortcode($atts) {
     <?php return ob_get_clean();
 }
 add_shortcode('add_products', 'shopblocks_add_products_shortcode');
+
+require_once plugin_dir_path(__FILE__) . 'admin/settings-page.php';
+
+
+
