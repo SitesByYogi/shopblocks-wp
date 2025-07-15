@@ -1,1 +1,96 @@
 /* ShopBlocks WP Styles */
+/* === ShopBlocks WP Styles === */
+
+/* Product Top Section */
+.shoppable-product-top-wrapper {
+  background: #f9f9f9;
+  padding: 40px 20px;
+}
+
+.shoppable-product-top-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.shoppable-product-top-image {
+  flex: 1 1 300px;
+  text-align: center;
+}
+
+.shoppable-product-top-image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.summary.entry-summary {
+  flex: 1 1 400px;
+}
+
+.summary.entry-summary .price {
+  font-size: 1.5rem;
+  color: #27ae60;
+  margin-bottom: 20px;
+}
+
+.summary.entry-summary .woocommerce-product-details__short-description {
+  font-size: 1rem;
+  margin-bottom: 20px;
+}
+
+.summary.entry-summary form.cart {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Grid Layout for Multiple Products */
+.local-product-grid {
+  padding: 40px 20px;
+  background: #fff;
+}
+
+.local-product-grid__container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.local-product-card {
+  background: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.local-product-card:hover {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+}
+
+.local-product-card__image img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.local-product-card__content {
+  padding: 15px;
+  text-align: center;
+}
+
+.local-product-card__title {
+  font-size: 1rem;
+  margin: 10px 0 5px;
+}
+
+.local-product-card__price {
+  color: #27ae60;
+  font-weight: bold;
+}
