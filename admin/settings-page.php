@@ -1,4 +1,31 @@
 <?php
+// admin/settings-page.php
+// Ensure this function is only declared once
+if (!function_exists('shopblocks_recommend_github_updater')) {
+    function shopblocks_recommend_github_updater() {
+        // Make sure required function exists
+        if (!function_exists('is_plugin_active')) {
+            require_once ABSPATH . 'wp-admin/includes/plugin.php';
+        }
+
+        if (
+            is_admin() &&
+            current_user_can('install_plugins') &&
+            !is_plugin_active('github-updater/github-updater.php')
+        ) {
+            add_action('admin_notices', function () {
+                echo '<div class="notice notice-warning is-dismissible">';
+                echo '<p><strong>ShopBlocks WP:</strong> To enable automatic plugin updates, please install the <a href="https://github.com/afragen/github-updater/releases/latest/download/github-updater.zip
+" target="_blank">GitHub Updater</a> plugin.</p>';
+                echo '</div>';
+            });
+        }
+    }
+
+    // Hook it into admin
+    add_action('admin_init', 'shopblocks_recommend_github_updater');
+}
+
 // 1. Admin Menu
 function shopblocks_admin_menu() {
     add_menu_page(

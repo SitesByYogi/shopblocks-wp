@@ -2,8 +2,11 @@
 /**
  * Plugin Name: ShopBlocks WP
  * Description: Turn your WooCommerce store into a Shopify-style experience with custom collections, shortcodes, and design enhancements.
- * Version: 1.3.2
+ * Version: 1.3.4
  * Author: SitesByYogi
+ * GitHub Plugin URI: https://github.com/SitesByYogi/shopblocks-wp
+ * GitHub Branch: main
+ * Primary Branch: main
  */
 
 if (!defined('ABSPATH')) exit;
