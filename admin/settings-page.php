@@ -1,4 +1,5 @@
 <?php
+// 1. Admin Menu
 function shopblocks_admin_menu() {
     add_menu_page(
         'ShopBlocks Settings',
@@ -12,6 +13,7 @@ function shopblocks_admin_menu() {
 }
 add_action('admin_menu', 'shopblocks_admin_menu');
 
+// 2. Settings Page Content
 function shopblocks_settings_page() {
     ?>
     <div class="wrap">
@@ -51,10 +53,14 @@ function shopblocks_settings_page() {
     <?php
 }
 
+// 3. Register Settings
 function shopblocks_register_settings() {
+    // Register options
     register_setting('shopblocks_settings', 'shopblocks_default_limit');
     register_setting('shopblocks_settings', 'shopblocks_enable_styles');
+    register_setting('shopblocks_settings', 'shopblocks_custom_css');
 
+    // Section
     add_settings_section(
         'shopblocks_main_section',
         'General Options',
@@ -62,6 +68,7 @@ function shopblocks_register_settings() {
         'shopblocks-settings'
     );
 
+    // Fields
     add_settings_field(
         'shopblocks_default_limit',
         'Default Product Limit',
@@ -77,9 +84,18 @@ function shopblocks_register_settings() {
         'shopblocks-settings',
         'shopblocks_main_section'
     );
+
+    add_settings_field(
+        'shopblocks_custom_css',
+        'Custom CSS (Global)',
+        'shopblocks_custom_css_callback',
+        'shopblocks-settings',
+        'shopblocks_main_section'
+    );
 }
 add_action('admin_init', 'shopblocks_register_settings');
 
+// 4. Callbacks
 function shopblocks_default_limit_callback() {
     $value = esc_attr(get_option('shopblocks_default_limit', 4));
     echo "<input type='number' name='shopblocks_default_limit' value='{$value}' min='1' />";
@@ -89,3 +105,17 @@ function shopblocks_enable_styles_callback() {
     $checked = checked(1, get_option('shopblocks_enable_styles', 1), false);
     echo "<input type='checkbox' name='shopblocks_enable_styles' value='1' {$checked} /> Enable ShopBlocks CSS";
 }
+
+function shopblocks_custom_css_callback() {
+    $value = esc_textarea(get_option('shopblocks_custom_css', ''));
+    echo "<textarea name='shopblocks_custom_css' rows='10' style='width:100%;font-family:monospace;'>{$value}</textarea>";
+    echo "<p class='description'>This CSS will be output globally. Use with caution.</p>";
+}
+
+// 5. Output Custom CSS in Head (non-scoped)
+add_action('wp_head', function() {
+    $css = get_option('shopblocks_custom_css', '');
+    if (!empty($css)) {
+        echo '<style id="shopblocks-custom-css">' . wp_strip_all_tags($css, true) . '</style>';
+    }
+});
