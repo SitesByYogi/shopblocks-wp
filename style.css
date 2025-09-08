@@ -1,5 +1,4 @@
-/* ShopBlocks WP Styles */
-/* === ShopBlocks WP Styles === */
+/* === ShopBlocks WP Styles (Top Product + Grid) === */
 
 /* Product Top Section */
 .shoppable-product-top-wrapper {
@@ -8,16 +7,23 @@
 }
 
 .shoppable-product-top-container {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(320px, 1fr);
   gap: 40px;
-  align-items: center;
+  align-items: start;
   max-width: 1200px;
   margin: 0 auto;
 }
 
+@media (max-width: 900px) {
+  .shoppable-product-top-container {
+    grid-template-columns: 1fr;
+  }
+}
+
 .shoppable-product-top-image {
-  flex: 1 1 300px;
+  min-width: 0;
+  /* prevents overflow in grid */
   text-align: center;
 }
 
@@ -25,30 +31,135 @@
   max-width: 100%;
   height: auto;
   border-radius: 8px;
+  display: block;
+  margin: 0 auto;
 }
 
-.summary.entry-summary {
-  flex: 1 1 400px;
+.shoppable-product-top-wrapper .summary.entry-summary {
+  min-width: 0;
 }
 
-.summary.entry-summary .price {
+.shoppable-product-top-wrapper .summary.entry-summary .product_title,
+.shoppable-product-top-wrapper .summary.entry-summary h1,
+.shoppable-product-top-wrapper .summary.entry-summary h2 {
+  margin: 0 0 10px;
+  line-height: 1.2;
+}
+
+.shoppable-product-top-wrapper .summary.entry-summary .price {
   font-size: 1.5rem;
   color: #27ae60;
-  margin-bottom: 20px;
+  margin: 10px 0 20px;
 }
 
-.summary.entry-summary .woocommerce-product-details__short-description {
+.shoppable-product-top-wrapper .summary.entry-summary .woocommerce-product-details__short-description {
   font-size: 1rem;
   margin-bottom: 20px;
 }
 
-.summary.entry-summary form.cart {
+/* Cart/variation form fixups */
+.shoppable-product-top-wrapper .summary.entry-summary form.cart {
   display: flex;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 12px;
   align-items: center;
 }
 
-/* Grid Layout for Multiple Products */
+@media (max-width: 640px) {
+  .shoppable-product-top-wrapper .summary.entry-summary form.cart {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* Woo variation table inside our block */
+.shoppable-product-top-wrapper .variations_form .variations {
+  width: 100%;
+  margin: 0 0 12px;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+  /* row spacing */
+}
+
+.shoppable-product-top-wrapper .variations_form .variations tr,
+.shoppable-product-top-wrapper .variations_form .variations td,
+.shoppable-product-top-wrapper .variations_form .variations th {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.shoppable-product-top-wrapper .variations_form .variations .label {
+  width: 28%;
+  vertical-align: middle;
+  padding-right: 10px;
+  font-weight: 600;
+}
+
+.shoppable-product-top-wrapper .variations_form .variations .value {
+  width: 72%;
+}
+
+.shoppable-product-top-wrapper .variations_form .variations select {
+  width: 100%;
+  max-width: 100%;
+  min-height: 40px;
+}
+
+@media (max-width: 640px) {
+
+  .shoppable-product-top-wrapper .variations_form .variations .label,
+  .shoppable-product-top-wrapper .variations_form .variations .value {
+    display: block;
+    width: 100%;
+  }
+
+  .shoppable-product-top-wrapper .variations_form .variations .label {
+    margin-bottom: 4px;
+  }
+}
+
+/* Single variation price/availability block */
+.shoppable-product-top-wrapper .single_variation_wrap {
+  width: 100%;
+  margin: 4px 0 8px;
+}
+
+.shoppable-product-top-wrapper .single_variation .price,
+.shoppable-product-top-wrapper .woocommerce-variation-price .price {
+  color: #27ae60;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+/* Quantity + Add to cart */
+.shoppable-product-top-wrapper .quantity .qty {
+  min-width: 72px;
+  height: 40px;
+  padding: 6px 10px;
+}
+
+.shoppable-product-top-wrapper .single_add_to_cart_button.button {
+  height: 44px;
+  line-height: 44px;
+  padding: 0 16px;
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .shoppable-product-top-wrapper .single_add_to_cart_button.button {
+    width: 100%;
+  }
+}
+
+/* Messages alignment inside section */
+.shoppable-product-top-wrapper .woocommerce-message,
+.shoppable-product-top-wrapper .woocommerce-error,
+.shoppable-product-top-wrapper .woocommerce-info {
+  margin: 15px 0 0;
+}
+
+/* === Grid Layout for Multiple Products (unchanged with small polish) === */
 .local-product-grid {
   padding: 40px 20px;
   background: #fff;
@@ -68,6 +179,8 @@
   border-radius: 8px;
   overflow: hidden;
   transition: box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .local-product-card:hover {
@@ -93,4 +206,221 @@
 .local-product-card__price {
   color: #27ae60;
   font-weight: bold;
+  margin-top: 6px;
+  /* tiny space above price (and from a buy button if you add one) */
+}
+
+/* Wider than default content but not full-bleed */
+.entry-content .shoppable-product-top-wrapper {
+  max-width: none;
+  /* don’t inherit content width cap */
+}
+
+/* === ShopBlocks Top Product: Compact desktop tune === */
+
+/* Tweakable knobs */
+.shoppable-product-top-wrapper {
+  --sbw-max: 1120px;
+  /* overall content cap on wide screens */
+  --sbw-gap: 28px;
+  /* space between image and summary */
+  --sbw-pad-y: 28px;
+  /* vertical padding */
+  --sbw-img-max: 440px;
+  /* image column max width */
+  --sbw-title: clamp(1.15rem, 1.1vw + 1rem, 1.5rem);
+  --sbw-price: clamp(1.05rem, 0.9vw + 0.9rem, 1.35rem);
+}
+
+.shoppable-product-top-wrapper {
+  padding-top: var(--sbw-pad-y);
+  padding-bottom: var(--sbw-pad-y);
+}
+
+/* keep it centered but not huge */
+.shoppable-product-top-container {
+  max-width: var(--sbw-max);
+  margin: 0 auto;
+  gap: var(--sbw-gap);
+  /* Image column has a hard ceiling; summary takes the rest */
+  grid-template-columns: minmax(260px, min(40vw, var(--sbw-img-max))) 1fr;
+  align-items: start;
+}
+
+/* Cap the image visually as well */
+.shoppable-product-top-image {
+  max-width: min(40vw, var(--sbw-img-max));
+  margin: 0 auto;
+}
+
+.shoppable-product-top-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Make headings/prices slightly smaller on desktop */
+.shoppable-product-top-wrapper .summary.entry-summary .product_title,
+.shoppable-product-top-wrapper .summary.entry-summary h1,
+.shoppable-product-top-wrapper .summary.entry-summary h2 {
+  font-size: var(--sbw-title);
+  margin-bottom: 8px;
+}
+
+.shoppable-product-top-wrapper .summary.entry-summary .price,
+.shoppable-product-top-wrapper .single_variation .price,
+.shoppable-product-top-wrapper .woocommerce-variation-price .price {
+  font-size: var(--sbw-price);
+}
+
+/* Tighten variation table spacing just a touch */
+.shoppable-product-top-wrapper .variations_form .variations {
+  border-spacing: 0 8px;
+}
+
+/* Slightly smaller gap in the cart row on desktop */
+.shoppable-product-top-wrapper .summary.entry-summary form.cart {
+  gap: 10px;
+}
+
+/* On very wide screens, don’t let things “breathe” too much */
+@media (min-width: 1400px) {
+  .shoppable-product-top-wrapper {
+    --sbw-max: 1080px;
+    --sbw-gap: 24px;
+    --sbw-pad-y: 24px;
+    --sbw-img-max: 420px;
+  }
+}
+
+/* Mobile remains as-is from your previous rules */
+@media (max-width: 900px) {
+  .shoppable-product-top-container {
+    grid-template-columns: 1fr;
+  }
+
+  .shoppable-product-top-image {
+    max-width: 100%;
+  }
+}
+
+/* Make single Collections "page-like" */
+.single-collection .wp-block-post-title,
+.single-collection .entry-title,
+.single-collection .entry-header,
+.single-collection .byline,
+.single-collection .posted-on,
+.single-collection .entry-meta,
+.single-collection .entry-footer,
+.single-collection .tags-links,
+.single-collection .cat-links,
+.single-collection .navigation,
+.single-collection .comments-area,
+.post-type-archive-collection .wp-block-post-title,
+.post-type-archive-collection .page-title {
+  display: none !important;
+}
+
+/* Single Collection: constrain theme featured image (block + classic themes) */
+.single-collection .wp-block-post-featured-image,
+.single-collection .post-thumbnail,
+.single-collection .entry-thumbnail,
+.single-collection .featured-media {
+  max-width: 1100px;
+  margin: 0 auto 20px;
+}
+
+.single-collection .wp-block-post-featured-image img,
+.single-collection .post-thumbnail img,
+.single-collection .entry-thumbnail img,
+.single-collection .featured-media img {
+  width: 100%;
+  height: auto;
+  max-height: 420px;
+  /* dial this down if needed */
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* Smaller product image in the top section on Collections only */
+.single-collection .shoppable-product-top-wrapper {
+  --sbw-img-max: 380px;
+}
+
+/* try 360/340 if you want tighter */
+
+/* === Mobile clamps for Collections & Top Product === */
+
+/* 1) Clamp the THEME'S featured image on single Collections (block + classic themes) */
+@media (max-width: 600px) {
+
+  .single-collection .wp-block-post-featured-image,
+  .single-collection .post-thumbnail,
+  .single-collection .entry-thumbnail,
+  .single-collection .featured-media {
+    max-width: 92vw;
+    margin: 0 auto 14px;
+  }
+
+  .single-collection .wp-block-post-featured-image img,
+  .single-collection .post-thumbnail img,
+  .single-collection .entry-thumbnail img,
+  .single-collection .featured-media img {
+    width: 100%;
+    height: auto;
+    max-height: 220px;
+    /* ↓ tighten if needed (e.g., 200px) */
+    object-fit: cover;
+    border-radius: 8px;
+  }
+}
+
+/* 2) Clamp the PRODUCT image inside your shortcode */
+@media (max-width: 600px) {
+  .shoppable-product-top-wrapper {
+    --sbw-pad-y: 18px;
+    --sbw-gap: 14px;
+    --sbw-img-max: 360px;
+    /* global cap for small screens */
+  }
+
+  .shoppable-product-top-container {
+    grid-template-columns: 1fr;
+    /* ensure single column */
+  }
+
+  .shoppable-product-top-image {
+    max-width: min(90vw, var(--sbw-img-max));
+    margin: 0 auto;
+  }
+
+  .shoppable-product-top-image img {
+    width: 100%;
+    height: auto;
+    max-height: 280px;
+    /* ↓ tighten to 240–260 if still too tall */
+    object-fit: contain;
+    /* keep full product visible */
+  }
+
+  /* Make controls comfy on mobile */
+  .shoppable-product-top-wrapper .summary.entry-summary form.cart {
+    gap: 8px;
+  }
+
+  .shoppable-product-top-wrapper .single_add_to_cart_button.button,
+  .shoppable-product-top-wrapper .quantity .qty {
+    width: 100%;
+  }
+}
+
+/* Ultra-small phones */
+@media (max-width: 380px) {
+  .shoppable-product-top-wrapper {
+    --sbw-img-max: 320px;
+  }
+
+  .shoppable-product-top-image img {
+    max-height: 240px;
+  }
 }

@@ -11,7 +11,7 @@
 
 if (!defined('ABSPATH')) exit;
 
-define('SHOPBLOCKS_PLUGIN_VERSION', '1.3.1');
+define('SHOPBLOCKS_PLUGIN_VERSION', '1.3.4');
 define('SHOPBLOCKS_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('SHOPBLOCKS_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -50,6 +50,8 @@ add_action('init', function () {
         'citations-section'         => 'Citations Section',
         'single-shoppable-template' => 'Single Shoppable Template',
         'full-template-layout'      => 'Full Template Layout',
+        'default-shoppable-template' => 'Default Shoppable Template',
+
     ];
 
     foreach ($patterns as $slug => $title) {
@@ -95,10 +97,51 @@ function shopblocks_register_collections_cpt() {
             'slug'       => 'collections',
             'with_front' => false, // prevents "/blog/" being prefixed
         ],
-        'show_in_rest'  => true,
+        'show_in_rest'  => true, // enables block editor + templates
         'supports'      => ['title', 'editor', 'thumbnail', 'excerpt', 'custom-fields'],
         'menu_position' => 5,
         'menu_icon'     => 'dashicons-screenoptions',
+
+        // ✅ Gutenberg editor template (pre-fills new Collections)
+        'template'      => [
+    [ 'core/heading', [
+        'level' => 1,
+        'content' => 'Featured Collection',
+        'textAlign' => 'center'
+    ]],
+    [ 'core/paragraph', [
+        'content' => 'Explore our featured product—select options below and add to cart.'
+    ]],
+    [ 'core/shortcode', [
+        'text' => '[shoppable_product_top id="740"]'
+    ]],
+
+    // ✅ Spacer needs string with units
+    [ 'core/spacer', [ 'height' => '24px' ] ],
+
+    [ 'core/columns', [], [
+        [ 'core/column', [], [
+            [ 'core/heading', [ 'level' => 3, 'content' => 'Why You’ll Love It' ] ],
+            [ 'core/list', [ 'values' => '<li>Fast checkout</li><li>Mobile-first layout</li><li>Conversion-focused design</li>' ] ],
+        ]],
+        [ 'core/column', [], [
+            [ 'core/heading', [ 'level' => 3, 'content' => 'What’s Included' ] ],
+            [ 'core/list', [ 'values' => '<li>Top product with variations</li><li>Clean price &amp; quantity UI</li><li>SEO-ready structure</li>' ] ],
+        ]],
+    ]],
+
+    // ✅ Spacer again with units
+    [ 'core/spacer', [ 'height' => '16px' ] ],
+
+    // ✅ Proper Details block: summary attr + inner content blocks
+    [ 'core/details', [ 'summary' => 'Shipping & Handling' ], [
+        [ 'core/paragraph', [ 'content' => 'Most orders ship within 1–2 business days with tracking.' ] ],
+    ]],
+],
+
+        // 'template_lock' => 'insert', // optional: allow edits but prevent removing/rearranging initial blocks
+        // Set to false (or remove) if you want full freedom:
+        'template_lock' => false,
     ];
 
     register_post_type('collection', $args);
@@ -203,12 +246,13 @@ function shopblocks_product_top_shortcode($atts) {
 
     ob_start(); ?>
     <section class="woocommerce shoppable-product-top-wrapper">
-        <div class="shoppable-product-top-container product">
+        <div class="shoppable-product-top-container">
             <div class="shoppable-product-top-image">
                 <?php echo $img_html; ?>
             </div>
 
             <div class="summary entry-summary">
+            <h2 class="product_title entry-title"><?php echo esc_html( $product->get_name() ); ?></h2>
                 <?php if ($display_product->get_price_html()): ?>
                     <p class="price"><?php echo $display_product->get_price_html(); ?></p>
                 <?php endif; ?>
@@ -323,4 +367,24 @@ add_shortcode('add_products', 'shopblocks_add_products_shortcode');
 /**
  * Admin Settings page (instructions, toggles, etc.).
  */
-require_once SHOPBLOCKS_PLUGIN_DIR . 'admin/settings-page.php';
+$admin_page = SHOPBLOCKS_PLUGIN_DIR . 'admin/settings-page.php';
+if ( file_exists( $admin_page ) ) {
+    require_once $admin_page;
+}
+
+/**
+ * Theme compat (Storefront-specific).
+ * Note: Optional if you’re using the all-themes compat below (it already covers Storefront).
+ */
+$storefront_compat = SHOPBLOCKS_PLUGIN_DIR . 'includes/theme-storefront-compat.php';
+if ( file_exists( $storefront_compat ) ) {
+    require_once $storefront_compat;
+}
+
+/**
+ * Theme-agnostic Collections compat (block + classic themes).
+ */
+$allthemes_compat = SHOPBLOCKS_PLUGIN_DIR . 'includes/collections-compat-allthemes.php';
+if ( file_exists( $allthemes_compat ) ) {
+    require_once $allthemes_compat;
+}
