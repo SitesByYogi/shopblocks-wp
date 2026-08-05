@@ -1,148 +1,151 @@
 <?php
-// admin/settings-page.php
-// Ensure this function is only declared once
-if (!function_exists('shopblocks_recommend_github_updater')) {
-    function shopblocks_recommend_github_updater() {
-        // Make sure required function exists
-        if (!function_exists('is_plugin_active')) {
-            require_once ABSPATH . 'wp-admin/includes/plugin.php';
-        }
+if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-        if (
-            is_admin() &&
-            current_user_can('install_plugins') &&
-            !is_plugin_active('github-updater/github-updater.php')
-        ) {
-            add_action('admin_notices', function () {
-                echo '<div class="notice notice-warning is-dismissible">';
-                echo '<p><strong>ShopBlocks WP:</strong> To enable automatic plugin updates, please install the <a href="https://github.com/afragen/github-updater/releases/latest/download/github-updater.zip
-" target="_blank">GitHub Updater</a> plugin.</p>';
-                echo '</div>';
-            });
-        }
-    }
-
-    // Hook it into admin
-    add_action('admin_init', 'shopblocks_recommend_github_updater');
-}
-
-// 1. Admin Menu
 function shopblocks_admin_menu() {
-    add_menu_page(
-        'ShopBlocks Settings',
-        'ShopBlocks',
-        'manage_options',
-        'shopblocks-settings',
-        'shopblocks_settings_page',
-        'dashicons-cart',
-        56
-    );
-}
-add_action('admin_menu', 'shopblocks_admin_menu');
+	add_menu_page(
+		__( 'ShopBlocks', 'shopblocks-wp' ),
+		__( 'ShopBlocks', 'shopblocks-wp' ),
+		'manage_options',
+		'shopblocks-settings',
+		'shopblocks_settings_page',
+		'dashicons-cart',
+		57
+	);
 
-// 2. Settings Page Content
+	// Keep a clearly labeled Settings destination visible beneath the
+	// ShopBlocks menu even when custom post type submenus are registered.
+	add_submenu_page(
+		'shopblocks-settings',
+		__( 'ShopBlocks Settings', 'shopblocks-wp' ),
+		__( 'Settings', 'shopblocks-wp' ),
+		'manage_options',
+		'shopblocks-settings-options',
+		'shopblocks_settings_page'
+	);
+}
+add_action( 'admin_menu', 'shopblocks_admin_menu' );
+
 function shopblocks_settings_page() {
-    ?>
-    <div class="wrap">
-        <h1>ShopBlocks Settings</h1>
-        <h2 class="nav-tab-wrapper">
-            <a href="?page=shopblocks-settings&tab=instructions" class="nav-tab <?php echo (!isset($_GET['tab']) || $_GET['tab'] === 'instructions') ? 'nav-tab-active' : ''; ?>">Shortcodes</a>
-            <a href="?page=shopblocks-settings&tab=general" class="nav-tab <?php echo (isset($_GET['tab']) && $_GET['tab'] === 'general') ? 'nav-tab-active' : ''; ?>">Settings</a>
-        </h2>
-
-        <div class="shopblocks-tab-content">
-            <?php
-            $tab = $_GET['tab'] ?? 'instructions';
-            if ($tab === 'instructions') {
-                ?>
-                <h2>Available Shortcodes</h2>
-                <ul>
-                    <li><code>[shoppable_product_top id="123"]</code> – Displays a hero layout for a single product.</li>
-                    <li><code>[shoppable_product_top slug="product-slug"]</code> – Same as above but by slug.</li>
-                    <li><code>[add_products category="thca-flower" limit="4"]</code> – Displays multiple products from a category.</li>
-                    <li><code>[add_products ids="1,2,3"]</code> – Displays products by specific IDs.</li>
-                </ul>
-                <?php
-            } elseif ($tab === 'general') {
-                ?>
-                <form method="post" action="options.php">
-                    <?php
-                    settings_fields('shopblocks_settings');
-                    do_settings_sections('shopblocks-settings');
-                    submit_button();
-                    ?>
-                </form>
-                <?php
-            }
-            ?>
-        </div>
-    </div>
-    <?php
+	$tab = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'instructions';
+	$page_slug = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : 'shopblocks-settings';
+	if ( ! in_array( $page_slug, array( 'shopblocks-settings', 'shopblocks-settings-options' ), true ) ) { $page_slug = 'shopblocks-settings'; }
+	if ( ! in_array( $tab, array( 'instructions', 'general', 'design' ), true ) ) { $tab = 'instructions'; }
+	?>
+	<div class="wrap">
+		<h1><?php esc_html_e( 'ShopBlocks Settings', 'shopblocks-wp' ); ?></h1>
+		<nav class="nav-tab-wrapper">
+			<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $page_slug . '&tab=instructions' ) ); ?>" class="nav-tab <?php echo 'instructions' === $tab ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Shortcodes', 'shopblocks-wp' ); ?></a>
+			<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $page_slug . '&tab=general' ) ); ?>" class="nav-tab <?php echo 'general' === $tab ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Settings', 'shopblocks-wp' ); ?></a>
+			<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $page_slug . '&tab=design' ) ); ?>" class="nav-tab <?php echo 'design' === $tab ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Design', 'shopblocks-wp' ); ?></a>
+		</nav>
+		<?php if ( 'instructions' === $tab ) : ?>
+			<h2><?php esc_html_e( 'Content Types', 'shopblocks-wp' ); ?></h2>
+			<p><strong><?php esc_html_e( 'Blogs', 'shopblocks-wp' ); ?></strong>: <?php esc_html_e( 'Editorial articles with a desktop sidebar and mobile stacked layout. Products are optional sidebar content and never populate automatically at the top.', 'shopblocks-wp' ); ?></p>
+			<p><strong><?php esc_html_e( 'Collections', 'shopblocks-wp' ); ?></strong>: <?php esc_html_e( 'Full-width shoppable articles with selected products near the top and no sidebar.', 'shopblocks-wp' ); ?></p>
+			<h2><?php esc_html_e( 'Available Shortcodes', 'shopblocks-wp' ); ?></h2>
+			<p><code>[shoppable_product_top id="123"]</code></p>
+			<p><code>[shoppable_product_top slug="product-slug" variation_id="456"]</code></p>
+			<p><code>[shoppable_product_top slug="product-slug" attribute_pa_size="large"]</code></p>
+			<p><code>[shopblocks_products category="featured" limit="4" columns="4"]</code></p>
+			<p><code>[shopblocks_products ids="1,2,3"]</code></p>
+			<p><code>[shopblocks_products ids="1,2" columns="1" layout="sidebar"]</code></p>
+			<p><code>[shopblocks_newsletter]</code></p>
+			<p class="description"><?php esc_html_e( 'The legacy [add_products] shortcode remains supported.', 'shopblocks-wp' ); ?></p>
+		<?php elseif ( 'general' === $tab ) : ?>
+			<form method="post" action="options.php">
+				<?php settings_fields( 'shopblocks_settings' ); do_settings_sections( 'shopblocks-settings' ); submit_button(); ?>
+			</form>
+		<?php else : ?>
+			<p><?php esc_html_e( 'ShopBlocks inherits the active theme by default. Use layout tokens and the scoped CSS fields for Figma-specific template styling without changing the rest of the site.', 'shopblocks-wp' ); ?></p>
+			<form method="post" action="options.php">
+				<?php settings_fields( 'shopblocks_settings' ); do_settings_sections( 'shopblocks-design' ); submit_button(); ?>
+			</form>
+		<?php endif; ?>
+	</div>
+	<?php
 }
 
-// 3. Register Settings
+function shopblocks_sanitize_limit( $value ) { return max( 1, min( 48, absint( $value ) ) ); }
+function shopblocks_sanitize_checkbox( $value ) { return empty( $value ) ? 0 : 1; }
+function shopblocks_sanitize_css( $value ) {
+	$value = is_string( $value ) ? wp_unslash( $value ) : '';
+	$value = preg_replace( '#</?style[^>]*>#i', '', $value );
+	return trim( $value );
+}
+
+function shopblocks_sanitize_color( $value ) {
+	$color = sanitize_hex_color( $value );
+	return $color ? $color : '';
+}
+function shopblocks_sanitize_css_token( $value ) {
+	$value = trim( sanitize_text_field( wp_unslash( (string) $value ) ) );
+	return preg_match( '/^[a-zA-Z0-9#.,()\s%\-\/\"\']+$/', $value ) ? $value : '';
+}
+
 function shopblocks_register_settings() {
-    // Register options
-    register_setting('shopblocks_settings', 'shopblocks_default_limit');
-    register_setting('shopblocks_settings', 'shopblocks_enable_styles');
-    register_setting('shopblocks_settings', 'shopblocks_custom_css');
+	register_setting( 'shopblocks_settings', 'shopblocks_default_limit', array( 'type' => 'integer', 'sanitize_callback' => 'shopblocks_sanitize_limit', 'default' => 4 ) );
+	register_setting( 'shopblocks_settings', 'shopblocks_enable_styles', array( 'type' => 'boolean', 'sanitize_callback' => 'shopblocks_sanitize_checkbox', 'default' => 1 ) );
+	register_setting( 'shopblocks_settings', 'shopblocks_newsletter_shortcode', array( 'sanitize_callback' => 'sanitize_text_field', 'default' => '' ) );
 
-    // Section
-    add_settings_section(
-        'shopblocks_main_section',
-        'General Options',
-        null,
-        'shopblocks-settings'
-    );
+	register_setting( 'shopblocks_settings', 'shopblocks_custom_css', array( 'type' => 'string', 'sanitize_callback' => 'shopblocks_sanitize_css', 'default' => '' ) );
+	register_setting( 'shopblocks_settings', 'shopblocks_blog_css', array( 'type' => 'string', 'sanitize_callback' => 'shopblocks_sanitize_css', 'default' => '' ) );
+	register_setting( 'shopblocks_settings', 'shopblocks_collection_css', array( 'type' => 'string', 'sanitize_callback' => 'shopblocks_sanitize_css', 'default' => '' ) );
+	add_settings_section( 'shopblocks_main_section', __( 'General Options', 'shopblocks-wp' ), '__return_false', 'shopblocks-settings' );
+	add_settings_field( 'shopblocks_default_limit', __( 'Default Product Limit', 'shopblocks-wp' ), 'shopblocks_default_limit_callback', 'shopblocks-settings', 'shopblocks_main_section' );
+	add_settings_field( 'shopblocks_enable_styles', __( 'Enable Plugin Styling', 'shopblocks-wp' ), 'shopblocks_enable_styles_callback', 'shopblocks-settings', 'shopblocks_main_section' );
+	add_settings_field( 'shopblocks_newsletter_shortcode', __( 'Newsletter Form Shortcode', 'shopblocks-wp' ), 'shopblocks_newsletter_shortcode_callback', 'shopblocks-settings', 'shopblocks_main_section' );
+	add_settings_field( 'shopblocks_custom_css', __( 'Shared Template CSS', 'shopblocks-wp' ), 'shopblocks_custom_css_callback', 'shopblocks-settings', 'shopblocks_main_section' );
+	add_settings_field( 'shopblocks_blog_css', __( 'Blog Template CSS', 'shopblocks-wp' ), 'shopblocks_blog_css_callback', 'shopblocks-settings', 'shopblocks_main_section' );
+	add_settings_field( 'shopblocks_collection_css', __( 'Collection Template CSS', 'shopblocks-wp' ), 'shopblocks_collection_css_callback', 'shopblocks-settings', 'shopblocks_main_section' );
 
-    // Fields
-    add_settings_field(
-        'shopblocks_default_limit',
-        'Default Product Limit',
-        'shopblocks_default_limit_callback',
-        'shopblocks-settings',
-        'shopblocks_main_section'
-    );
 
-    add_settings_field(
-        'shopblocks_enable_styles',
-        'Enable Plugin Styling',
-        'shopblocks_enable_styles_callback',
-        'shopblocks-settings',
-        'shopblocks_main_section'
-    );
-
-    add_settings_field(
-        'shopblocks_custom_css',
-        'Custom CSS (Global)',
-        'shopblocks_custom_css_callback',
-        'shopblocks-settings',
-        'shopblocks_main_section'
-    );
+	$design_options = array(
+		'shopblocks_font_heading'  => array( __( 'Heading Font Stack', 'shopblocks-wp' ), 'inherit' ),
+		'shopblocks_font_body'     => array( __( 'Body Font Stack', 'shopblocks-wp' ), 'inherit' ),
+		'shopblocks_color_primary' => array( __( 'Primary Color', 'shopblocks-wp' ), '#1ea5e8', 'color' ),
+		'shopblocks_color_text'    => array( __( 'Text Color', 'shopblocks-wp' ), '#1f2933', 'color' ),
+		'shopblocks_color_muted'   => array( __( 'Muted Text Color', 'shopblocks-wp' ), '#6b7280', 'color' ),
+		'shopblocks_color_surface' => array( __( 'Surface Color', 'shopblocks-wp' ), '#ffffff', 'color' ),
+		'shopblocks_color_border'  => array( __( 'Border Color', 'shopblocks-wp' ), '#d9dde3', 'color' ),
+		'shopblocks_page_width'    => array( __( 'Page Width', 'shopblocks-wp' ), '1280px' ),
+		'shopblocks_article_width' => array( __( 'Article Width', 'shopblocks-wp' ), '780px' ),
+		'shopblocks_sidebar_width' => array( __( 'Sidebar Width', 'shopblocks-wp' ), '320px' ),
+		'shopblocks_layout_gap'    => array( __( 'Layout Gap', 'shopblocks-wp' ), '48px' ),
+		'shopblocks_radius_small'  => array( __( 'Small Radius', 'shopblocks-wp' ), '6px' ),
+		'shopblocks_radius_medium' => array( __( 'Medium Radius', 'shopblocks-wp' ), '12px' ),
+		'shopblocks_radius_large'  => array( __( 'Large Radius', 'shopblocks-wp' ), '24px' ),
+		'shopblocks_button_radius' => array( __( 'Button Radius', 'shopblocks-wp' ), '6px' ),
+		'shopblocks_card_shadow'   => array( __( 'Card Shadow', 'shopblocks-wp' ), 'none' ),
+	);
+	add_settings_section( 'shopblocks_design_section', __( 'Design Tokens', 'shopblocks-wp' ), '__return_false', 'shopblocks-design' );
+	foreach ( $design_options as $option => $config ) {
+		$is_color = isset( $config[2] ) && 'color' === $config[2];
+		register_setting( 'shopblocks_settings', $option, array( 'sanitize_callback' => $is_color ? 'shopblocks_sanitize_color' : 'shopblocks_sanitize_css_token', 'default' => $config[1] ) );
+		add_settings_field( $option, $config[0], 'shopblocks_design_token_callback', 'shopblocks-design', 'shopblocks_design_section', array( 'option' => $option, 'default' => $config[1], 'type' => $is_color ? 'color' : 'text' ) );
+	}
+	add_settings_field( 'shopblocks_custom_css_design', __( 'Shared Template CSS', 'shopblocks-wp' ), 'shopblocks_custom_css_callback', 'shopblocks-design', 'shopblocks_design_section' );
+	add_settings_field( 'shopblocks_blog_css_design', __( 'Blog Template CSS', 'shopblocks-wp' ), 'shopblocks_blog_css_callback', 'shopblocks-design', 'shopblocks_design_section' );
+	add_settings_field( 'shopblocks_collection_css_design', __( 'Collection Template CSS', 'shopblocks-wp' ), 'shopblocks_collection_css_callback', 'shopblocks-design', 'shopblocks_design_section' );
 }
-add_action('admin_init', 'shopblocks_register_settings');
+add_action( 'admin_init', 'shopblocks_register_settings' );
 
-// 4. Callbacks
-function shopblocks_default_limit_callback() {
-    $value = esc_attr(get_option('shopblocks_default_limit', 4));
-    echo "<input type='number' name='shopblocks_default_limit' value='{$value}' min='1' />";
-}
-
-function shopblocks_enable_styles_callback() {
-    $checked = checked(1, get_option('shopblocks_enable_styles', 1), false);
-    echo "<input type='checkbox' name='shopblocks_enable_styles' value='1' {$checked} /> Enable ShopBlocks CSS";
+function shopblocks_default_limit_callback() { printf( '<input type="number" name="shopblocks_default_limit" value="%d" min="1" max="48">', absint( get_option( 'shopblocks_default_limit', 4 ) ) ); }
+function shopblocks_enable_styles_callback() { printf( '<label><input type="checkbox" name="shopblocks_enable_styles" value="1" %s> %s</label>', checked( 1, get_option( 'shopblocks_enable_styles', 1 ), false ), esc_html__( 'Load the default ShopBlocks stylesheet.', 'shopblocks-wp' ) ); }
+function shopblocks_newsletter_shortcode_callback() { printf( '<input type="text" name="shopblocks_newsletter_shortcode" value="%s" class="regular-text code" placeholder="[klaviyo_form id=&quot;ABC123&quot;]"><p class="description">%s</p>', esc_attr( get_option( 'shopblocks_newsletter_shortcode', '' ) ), esc_html__( 'Used by the newsletter panel in ShopBlocks Blogs.', 'shopblocks-wp' ) ); }
+function shopblocks_design_token_callback( $args ) {
+	$option  = sanitize_key( $args['option'] );
+	$default = isset( $args['default'] ) ? $args['default'] : '';
+	$type    = isset( $args['type'] ) && 'color' === $args['type'] ? 'color' : 'text';
+		$css_var = '--' . str_replace( '_', '-', $option );
+	printf( '<input type="%1$s" name="%2$s" value="%3$s" class="regular-text code"><p class="description"><code>%4$s</code></p>', esc_attr( $type ), esc_attr( $option ), esc_attr( get_option( $option, $default ) ), esc_html( $css_var ) );
 }
 
 function shopblocks_custom_css_callback() {
-    $value = esc_textarea(get_option('shopblocks_custom_css', ''));
-    echo "<textarea name='shopblocks_custom_css' rows='10' style='width:100%;font-family:monospace;'>{$value}</textarea>";
-    echo "<p class='description'>This CSS will be output globally. Use with caution.</p>";
+	printf( '<textarea name="shopblocks_custom_css" rows="10" class="large-text code">%s</textarea><p class="description">%s</p>', esc_textarea( get_option( 'shopblocks_custom_css', '' ) ), esc_html__( 'Applied only inside both ShopBlocks Blog and Collection templates. Theme styles remain inherited outside these templates.', 'shopblocks-wp' ) );
 }
-
-// 5. Output Custom CSS in Head (non-scoped)
-add_action('wp_head', function() {
-    $css = get_option('shopblocks_custom_css', '');
-    if (!empty($css)) {
-        echo '<style id="shopblocks-custom-css">' . wp_strip_all_tags($css, true) . '</style>';
-    }
-});
+function shopblocks_blog_css_callback() {
+	printf( '<textarea name="shopblocks_blog_css" rows="12" class="large-text code">%s</textarea><p class="description">%s</p>', esc_textarea( get_option( 'shopblocks_blog_css', '' ) ), esc_html__( 'Automatically scoped to .shopblocks-blog. You may safely use selectors such as h2, p, .button, or .shopblocks-blog__sidebar.', 'shopblocks-wp' ) );
+}
+function shopblocks_collection_css_callback() {
+	printf( '<textarea name="shopblocks_collection_css" rows="12" class="large-text code">%s</textarea><p class="description">%s</p>', esc_textarea( get_option( 'shopblocks_collection_css', '' ) ), esc_html__( 'Automatically scoped to .shopblocks-collection. You may safely use selectors such as h2, p, .button, or .shopblocks-product-card.', 'shopblocks-wp' ) );
+}

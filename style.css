@@ -1,96 +1,449 @@
-/* ShopBlocks WP Styles */
-/* === ShopBlocks WP Styles === */
+/* ShopBlocks WP 2.0.0
+ * Structural styles only. Typography, colors, buttons, links, form controls,
+ * and general content presentation inherit from the active WordPress theme.
+ */
 
-/* Product Top Section */
-.shoppable-product-top-wrapper {
-  background: #f9f9f9;
-  padding: 40px 20px;
+/* Shared layout safety */
+.shopblocks-blog,
+.shopblocks-collection {
+  min-width: 0;
 }
-
-.shoppable-product-top-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 40px;
-  align-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
+.shopblocks-blog *,
+.shopblocks-collection * {
+  box-sizing: border-box;
 }
-
-.shoppable-product-top-image {
-  flex: 1 1 300px;
-  text-align: center;
-}
-
-.shoppable-product-top-image img {
+.shopblocks-blog img,
+.shopblocks-collection img {
   max-width: 100%;
   height: auto;
-  border-radius: 8px;
 }
 
-.summary.entry-summary {
-  flex: 1 1 400px;
+/* Blog structure */
+.shopblocks-blog__hero {
+  position: relative;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
 }
-
-.summary.entry-summary .price {
-  font-size: 1.5rem;
-  color: #27ae60;
-  margin-bottom: 20px;
+.shopblocks-blog__hero-content,
+.shopblocks-blog-hero__inner {
+  width: min(calc(100% - 40px), var(--shopblocks-page-width, 1280px));
+  margin-inline: auto;
 }
-
-.summary.entry-summary .woocommerce-product-details__short-description {
-  font-size: 1rem;
-  margin-bottom: 20px;
-}
-
-.summary.entry-summary form.cart {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-/* Grid Layout for Multiple Products */
-.local-product-grid {
-  padding: 40px 20px;
-  background: #fff;
-}
-
-.local-product-grid__container {
+.shopblocks-blog__layout {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 30px;
-  max-width: 1200px;
-  margin: 0 auto;
+  grid-template-columns: minmax(0, var(--shopblocks-article-width, 780px)) minmax(240px, var(--shopblocks-sidebar-width, 320px));
+  justify-content: center;
+  align-items: start;
+  gap: var(--shopblocks-layout-gap, 48px);
+  width: min(calc(100% - 40px), var(--shopblocks-page-width, 1280px));
+  margin-inline: auto;
+}
+.shopblocks-blog__main,
+.shopblocks-blog__content,
+.shopblocks-blog__sidebar,
+.shopblocks-sidebar-block {
+  min-width: 0;
+}
+.shopblocks-sidebar-block:empty {
+  display: none;
 }
 
-.local-product-card {
-  background: #fafafa;
-  border: 1px solid #eee;
-  border-radius: 8px;
+/* Collection structure */
+.shopblocks-collection__hero,
+.shopblocks-collection__products,
+.shopblocks-collection__related-blogs {
+  width: min(calc(100% - 40px), var(--shopblocks-page-width, 1280px));
+  margin-inline: auto;
+}
+.shopblocks-collection__content {
+  width: min(calc(100% - 40px), var(--shopblocks-page-width, 1280px));
+  max-width: none;
+  margin-inline: auto;
+}
+
+/* ShopBlocks single templates call the active theme header and footer directly,
+ * so no theme post-container breakout rules are required here. */
+
+/* Product grids */
+.shopblocks-product-grid {
+  width: 100%;
+}
+.shopblocks-product-grid__inner {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 280px));
+  justify-content: center;
+  gap: var(--shopblocks-product-gap, 28px);
+  width: 100%;
+  max-width: var(--shopblocks-page-width, 1280px);
+  margin-inline: auto;
+}
+.shopblocks-product-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  width: 100%;
+}
+.shopblocks-product-card__image {
+  display: block;
   overflow: hidden;
-  transition: box-shadow 0.2s ease;
 }
-
-.local-product-card:hover {
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
-}
-
-.local-product-card__image img {
+.shopblocks-product-card__image img {
+  display: block;
   width: 100%;
   height: auto;
+}
+.shopblocks-product-card__content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+.shopblocks-product-card__button {
+  margin-top: auto;
+}
+
+/* Product hero structure */
+.shopblocks-product-hero__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--shopblocks-layout-gap, 48px);
+  width: min(calc(100% - 40px), var(--shopblocks-page-width, 1280px));
+  margin-inline: auto;
+}
+.shopblocks-product-hero__media {
+  flex: 1 1 320px;
+}
+.shopblocks-product-hero__summary {
+  flex: 1 1 400px;
+  float: none;
+  width: auto;
+}
+
+/* Related Blog cards */
+.shopblocks-blog-cards__inner,
+.shopblocks-blog-archive__grid,
+.shopblocks-collections__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--shopblocks-layout-gap, 28px);
+}
+.shopblocks-blog-cards--sidebar .shopblocks-blog-cards__inner {
+  grid-template-columns: 1fr;
+}
+
+@media (max-width: 900px) {
+  .shopblocks-blog__layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .shopblocks-blog__sidebar {
+    position: static;
+  }
+  .shopblocks-blog-cards__inner,
+  .shopblocks-blog-archive__grid,
+  .shopblocks-collections__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .shopblocks-blog__layout,
+  .shopblocks-blog__hero-content,
+  .shopblocks-blog-hero__inner,
+  .shopblocks-collection__hero,
+  .shopblocks-collection__products,
+  .shopblocks-collection__related-blogs,
+  .shopblocks-collection__content,
+  .shopblocks-product-hero__inner {
+    width: min(calc(100% - 28px), var(--shopblocks-page-width, 1280px));
+  }
+  .shopblocks-product-grid__inner {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--shopblocks-product-mobile-gap, 12px);
+  }
+  .shopblocks-blog-cards__inner,
+  .shopblocks-blog-archive__grid,
+  .shopblocks-collections__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ShopBlocks 1.9 page shell: isolate layout while inheriting theme design. */
+.shopblocks-page,
+.shopblocks-page__inner {
+  display: block;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+}
+.shopblocks-page__inner {
+  margin: 0;
+  padding: 0;
+}
+.shopblocks-collection__article,
+.shopblocks-gutenberg-content {
+  width: min(calc(100% - 40px), var(--shopblocks-page-width, 1280px));
+  max-width: none;
+  margin-inline: auto;
+}
+.shopblocks-gutenberg-content {
   display: block;
 }
+.shopblocks-gutenberg-content > * {
+  max-width: none;
+}
 
-.local-product-card__content {
-  padding: 15px;
+/* Related content is an automatic ShopBlocks component. */
+.shopblocks-related-content {
+  width: min(calc(100% - 40px), 1080px);
+  margin: 64px auto;
+  padding: 36px;
+  background: var(--shopblocks-related-background, #199ed8);
+  border-radius: var(--shopblocks-related-radius, 6px);
+}
+.shopblocks-related-content__title {
+  margin: 0 0 28px;
+  color: var(--shopblocks-related-heading-color, #fff);
   text-align: center;
 }
-
-.local-product-card__title {
-  font-size: 1rem;
-  margin: 10px 0 5px;
+.shopblocks-related-content__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+}
+.shopblocks-related-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 10px;
+  background: var(--shopblocks-related-card-background, #fff);
+}
+.shopblocks-related-card__image {
+  display: block;
+  overflow: hidden;
+}
+.shopblocks-related-card__image img,
+.shopblocks-related-card__placeholder {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1.55 / 1;
+  object-fit: cover;
+}
+.shopblocks-related-card__placeholder {
+  background: rgba(0,0,0,.08);
+}
+.shopblocks-related-card__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 14px 8px 6px;
+  text-align: center;
+}
+.shopblocks-related-card__title {
+  margin: 0 0 10px;
+}
+.shopblocks-related-card__title a {
+  color: inherit;
+}
+.shopblocks-related-card__excerpt {
+  margin: 0 0 16px;
+}
+.shopblocks-related-card__button {
+  display: block;
+  width: 100%;
+  margin-top: auto;
+  padding: 10px 14px;
+  background: var(--shopblocks-related-button-background, #199ed8);
+  color: var(--shopblocks-related-button-color, #fff);
+  text-align: center;
+  text-decoration: none;
+}
+.shopblocks-related-content--sidebar {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+.shopblocks-related-content--sidebar .shopblocks-related-content__title {
+  color: inherit;
+  text-align: left;
+}
+.shopblocks-related-content--sidebar .shopblocks-related-content__grid {
+  grid-template-columns: 1fr;
 }
 
-.local-product-card__price {
-  color: #27ae60;
-  font-weight: bold;
+/* Structured FAQs rendered after Collection editor content. */
+.shopblocks-faq--automatic {
+  width: 100%;
+  margin: 64px 0 0;
+}
+.shopblocks-faq__item {
+  border-top: 1px solid currentColor;
+}
+.shopblocks-faq__item:last-child {
+  border-bottom: 1px solid currentColor;
+}
+.shopblocks-faq__question {
+  position: relative;
+  display: block;
+  padding: 18px 42px 18px 0;
+  cursor: pointer;
+  list-style: none;
+  font-weight: 600;
+}
+.shopblocks-faq__question::-webkit-details-marker { display: none; }
+.shopblocks-faq__question::after {
+  content: "+";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.shopblocks-faq__item[open] .shopblocks-faq__question::after { content: "−"; }
+.shopblocks-faq__answer { padding: 0 42px 18px 0; }
+.shopblocks-faq__answer p { margin: 0; }
+
+@media (max-width: 800px) {
+  .shopblocks-related-content__grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .shopblocks-collection__article,
+  .shopblocks-gutenberg-content,
+  .shopblocks-related-content {
+    width: calc(100% - 28px);
+  }
+  .shopblocks-related-content { padding: 24px 14px; }
+}
+
+
+/* =========================================================
+   ShopBlocks 1.10 Blog structure and dedicated sidebar
+   Blogs intentionally do not render Collection related-card panels.
+   ========================================================= */
+.shopblocks-blog__hero {
+  isolation: isolate;
+  min-height: var(--shopblocks-blog-hero-height, 420px);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.shopblocks-blog__hero-media,
+.shopblocks-blog__hero-overlay {
+  position: absolute;
+  inset: 0;
+}
+.shopblocks-blog__hero-media {
+  z-index: -2;
+  background-image: var(--shopblocks-blog-hero-image);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.shopblocks-blog__hero-overlay {
+  z-index: -1;
+  background: var(--shopblocks-blog-hero-overlay, rgba(4,18,38,.48));
+}
+.shopblocks-blog__hero-content {
+  position: relative;
+  z-index: 1;
+  width: min(calc(100% - 40px), var(--shopblocks-page-width, 1280px));
+  margin-inline: auto;
+  text-align: center;
+}
+.shopblocks-blog__hero.has-background .shopblocks-blog__title,
+.shopblocks-blog__hero.has-background .shopblocks-blog__meta {
+  color: var(--shopblocks-blog-hero-color, #fff);
+}
+.shopblocks-blog__meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: .65rem;
+}
+.shopblocks-blog__layout {
+  grid-template-columns: minmax(0, 780px) minmax(240px, 320px);
+  grid-template-columns: minmax(0, var(--shopblocks-article-width, 780px)) minmax(240px, var(--shopblocks-sidebar-width, 320px));
+  max-width: var(--shopblocks-page-width, 1280px);
+  padding-block: var(--shopblocks-blog-layout-padding, 64px);
+}
+.shopblocks-blog__article,
+.shopblocks-blog__main,
+.shopblocks-blog__sidebar {
+  min-width: 0;
+}
+.shopblocks-blog__sidebar {
+  align-self: start;
+}
+.shopblocks-sidebar-block + .shopblocks-sidebar-block {
+  margin-top: var(--shopblocks-sidebar-block-gap, 32px);
+}
+.shopblocks-sidebar-block--newsletter .shopblocks-newsletter,
+.shopblocks-sidebar-block--products .shopblocks-product-grid,
+.shopblocks-sidebar-block--links .shopblocks-helpful-links,
+.shopblocks-sidebar-block--custom > * {
+  width: 100%;
+  margin: 0;
+}
+.shopblocks-sidebar-products .shopblocks-product-grid__inner {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--shopblocks-sidebar-product-gap, 32px);
+  max-width: none;
+}
+.shopblocks-sidebar-products .shopblocks-product-card {
+  max-width: none;
+}
+.shopblocks-sidebar-products .shopblocks-product-card__image img {
+  width: 100%;
+}
+.shopblocks-sidebar-products .shopblocks-product-card__button {
+  display: block;
+  width: 100%;
+  text-align: center;
+}
+.shopblocks-helpful-links__title {
+  margin-top: 0;
+}
+.shopblocks-helpful-links__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.shopblocks-helpful-links__list li {
+  margin: 0;
+  border-bottom: 1px solid currentColor;
+}
+.shopblocks-helpful-links__list a {
+  display: block;
+  padding: .9rem 0;
+}
+.shopblocks-blog .shopblocks-faq--automatic {
+  width: 100%;
+}
+@media (min-width: 901px) {
+  .shopblocks-blog__sidebar {
+    position: sticky;
+    top: var(--shopblocks-sidebar-sticky-offset, 32px);
+  }
+}
+@media (max-width: 900px) {
+  .shopblocks-blog__layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .shopblocks-blog__sidebar {
+    position: static;
+    margin-top: var(--shopblocks-sidebar-mobile-gap, 48px);
+  }
+}
+@media (max-width: 600px) {
+  .shopblocks-blog__hero {
+    min-height: var(--shopblocks-blog-hero-mobile-height, 520px);
+  }
+  .shopblocks-blog__hero-content {
+    width: calc(100% - 28px);
+  }
+  .shopblocks-blog__meta {
+    gap: .45rem;
+  }
 }
