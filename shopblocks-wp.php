@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: ShopBlocks WP
- * Description: Curated WooCommerce product collections, product grids, shoppable product heroes, and reusable block patterns.
- * Version: 2.0.0
+ * Description: Structured WordPress Blogs, landing Articles, shoppable Collections, lead-generation components, and optional WooCommerce integrations.
+ * Version: 2.1.0
  * Author: SitesByYogi
  * Text Domain: shopblocks-wp
  * Requires at least: 6.3
@@ -12,13 +12,14 @@
  * GitHub Plugin URI: https://github.com/SitesByYogi/shopblocks-wp
  * GitHub Branch: main
  * Primary Branch: main
+ * Update URI: https://github.com/SitesByYogi/shopblocks-wp
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SHOPBLOCKS_PLUGIN_VERSION', '2.0.0' );
+define( 'SHOPBLOCKS_PLUGIN_VERSION', '2.1.0' );
 define( 'SHOPBLOCKS_PLUGIN_FILE', __FILE__ );
 define( 'SHOPBLOCKS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SHOPBLOCKS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -46,15 +47,6 @@ add_action( 'before_woocommerce_init', 'shopblocks_declare_woocommerce_compatibi
  */
 function shopblocks_has_woocommerce() {
 	return class_exists( 'WooCommerce' ) && function_exists( 'wc_get_product' );
-}
-
-/**
- * Display a dependency notice without registering broken WooCommerce features.
- */
-function shopblocks_woocommerce_notice() {
-	if ( current_user_can( 'activate_plugins' ) ) {
-		echo '<div class="notice notice-error"><p><strong>' . esc_html__( 'ShopBlocks WP', 'shopblocks-wp' ) . '</strong> ' . esc_html__( 'requires WooCommerce to be installed and active.', 'shopblocks-wp' ) . '</p></div>';
-	}
 }
 
 /**
@@ -116,6 +108,7 @@ function shopblocks_register_patterns() {
 		'blog-article'             => __( 'Standard Blog Article', 'shopblocks-wp' ),
 		'blog-sidebar'             => __( 'Blog Sidebar', 'shopblocks-wp' ),
 		'collection-article'       => __( 'Shoppable Collection Article', 'shopblocks-wp' ),
+		'article-landing'          => __( 'Lead Generation Article', 'shopblocks-wp' ),
 	);
 
 	foreach ( $patterns as $slug => $title ) {
@@ -148,6 +141,12 @@ function shopblocks_template_include( $template ) {
 	}
 
 	if ( is_singular( 'shopblocks_blog' ) ) {
+		$post_id = get_queried_object_id();
+		$layout  = get_post_meta( $post_id, '_shopblocks_content_layout', true );
+		if ( 'article' === $layout ) {
+			$theme_template = locate_template( 'shopblocks/single-article.php' );
+			return $theme_template ? $theme_template : SHOPBLOCKS_PLUGIN_DIR . 'templates/single-article.php';
+		}
 		$theme_template = locate_template( 'shopblocks/single-blog.php' );
 		return $theme_template ? $theme_template : SHOPBLOCKS_PLUGIN_DIR . 'templates/single-blog.php';
 	}
@@ -223,6 +222,8 @@ function shopblocks_body_classes( $classes ) {
 	if ( is_singular( 'shopblocks_blog' ) ) {
 		$classes[] = 'shopblocks-theme-shell';
 		$classes[] = 'shopblocks-theme-shell--blog';
+		$layout = get_post_meta( get_queried_object_id(), '_shopblocks_content_layout', true );
+		$classes[] = 'article' === $layout ? 'shopblocks-theme-shell--article' : 'shopblocks-theme-shell--editorial-blog';
 	}
 	return $classes;
 }
@@ -334,15 +335,19 @@ function shopblocks_enqueue_assets() {
 	 * The plugin's base stylesheet remains structural and inherits theme
 	 * typography, colors, links, buttons, and form controls by default.
 	 */
-	$shared_css     = get_option( 'shopblocks_custom_css', '' );
-	$blog_css       = get_option( 'shopblocks_blog_css', '' );
-	$collection_css = get_option( 'shopblocks_collection_css', '' );
+	$shared_css      = get_option( 'shopblocks_custom_css', '' );
+	$blog_css        = get_option( 'shopblocks_blog_css', '' );
+	$article_css     = get_option( 'shopblocks_article_css', '' );
+	$collection_css  = get_option( 'shopblocks_collection_css', '' );
 
 	if ( $shared_css ) {
-		wp_add_inline_style( 'shopblocks-style', '@scope (.shopblocks-blog) {' . $shared_css . '}@scope (.shopblocks-collection) {' . $shared_css . '}' );
+		wp_add_inline_style( 'shopblocks-style', '@scope (.shopblocks-blog) {' . $shared_css . '}@scope (.shopblocks-article) {' . $shared_css . '}@scope (.shopblocks-collection) {' . $shared_css . '}' );
 	}
 	if ( $blog_css ) {
 		wp_add_inline_style( 'shopblocks-style', '@scope (.shopblocks-blog) {' . $blog_css . '}' );
+	}
+	if ( $article_css ) {
+		wp_add_inline_style( 'shopblocks-style', '@scope (.shopblocks-article) {' . $article_css . '}' );
 	}
 	if ( $collection_css ) {
 		wp_add_inline_style( 'shopblocks-style', '@scope (.shopblocks-collection) {' . $collection_css . '}' );
@@ -547,24 +552,31 @@ function shopblocks_products_shortcode( $atts ) {
  * Set a provider shortcode in ShopBlocks settings (Klaviyo, Mailchimp, Fluent Forms, etc.).
  * The wrapper remains consistent with the shoppable article patterns.
  */
-function shopblocks_newsletter_shortcode() {
-	$newsletter_shortcode = trim(
-		(string) get_option( 'shopblocks_newsletter_shortcode', '' )
+function shopblocks_newsletter_shortcode( $atts ) {
+	$atts = shortcode_atts(
+		array(
+			'title'       => __( 'Join Our Mailing List.', 'shopblocks-wp' ),
+			'description' => '',
+		),
+		$atts,
+		'shopblocks_newsletter'
 	);
 
-	if ( '' === $newsletter_shortcode ) {
+	$provider_shortcode = trim( (string) get_option( 'shopblocks_newsletter_shortcode', '' ) );
+	if ( '' === $provider_shortcode ) {
 		return '';
 	}
 
 	ob_start();
 	?>
-	<aside class="shopblocks-newsletter">
-		<div class="shopblocks-newsletter__inner">
-			<?php echo do_shortcode( $newsletter_shortcode ); ?>
+	<aside class="shopblocks-newsletter" aria-label="<?php echo esc_attr( $atts['title'] ); ?>">
+		<h2 class="shopblocks-newsletter__title"><?php echo esc_html( $atts['title'] ); ?></h2>
+		<?php if ( $atts['description'] ) : ?><p class="shopblocks-newsletter__description"><?php echo esc_html( $atts['description'] ); ?></p><?php endif; ?>
+		<div class="shopblocks-newsletter__form">
+			<?php echo do_shortcode( $provider_shortcode ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 		</div>
 	</aside>
 	<?php
-
 	return ob_get_clean();
 }
 add_shortcode( 'shopblocks_newsletter', 'shopblocks_newsletter_shortcode' );
@@ -573,8 +585,8 @@ add_shortcode( 'shopblocks_newsletter', 'shopblocks_newsletter_shortcode' );
  * Bootstrap WooCommerce-only hooks after plugins load.
  */
 function shopblocks_bootstrap() {
+	/* Editorial and lead-generation features load without WooCommerce. */
 	if ( ! shopblocks_has_woocommerce() ) {
-		add_action( 'admin_notices', 'shopblocks_woocommerce_notice' );
 		return;
 	}
 	add_shortcode( 'shoppable_product_top', 'shopblocks_product_top_shortcode' );

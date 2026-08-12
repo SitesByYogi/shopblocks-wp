@@ -1,4 +1,4 @@
-/* ShopBlocks WP 2.0.0
+/* ShopBlocks WP 2.1.0
  * Structural styles only. Typography, colors, buttons, links, form controls,
  * and general content presentation inherit from the active WordPress theme.
  */
@@ -445,5 +445,217 @@
   }
   .shopblocks-blog__meta {
     gap: .45rem;
+  }
+}
+
+
+/* =========================================================
+   ShopBlocks 2.1 universal editorial + lead-generation layer
+   WooCommerce components are optional.
+   ========================================================= */
+.shopblocks-button,
+.shopblocks-sidebar-cta__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 10px 18px;
+  border-radius: var(--shopblocks-button-radius, 6px);
+  text-decoration: none;
+}
+.shopblocks-button--primary,
+.shopblocks-sidebar-cta__button {
+  background: var(--shopblocks-color-primary, #1ea5e8);
+  color: #fff;
+}
+.shopblocks-button--secondary {
+  border: 1px solid currentColor;
+  color: inherit;
+  background: transparent;
+}
+.shopblocks-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+/* Blog hero can optionally become a conversion split layout. */
+.shopblocks-blog__hero-shell {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--shopblocks-layout-gap, 48px);
+  align-items: center;
+  width: min(calc(100% - 40px), var(--shopblocks-page-width, 1280px));
+  margin-inline: auto;
+}
+.shopblocks-blog__hero-shell .shopblocks-blog__hero-content {
+  width: 100%;
+  margin: 0;
+}
+.shopblocks-blog.has-hero-conversion .shopblocks-blog__hero-shell {
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+}
+.shopblocks-blog.has-hero-conversion .shopblocks-blog__hero-content {
+  text-align: left;
+}
+.shopblocks-blog.has-hero-conversion .shopblocks-blog__meta {
+  justify-content: flex-start;
+}
+.shopblocks-blog__eyebrow,
+.shopblocks-article__eyebrow {
+  margin-bottom: 12px;
+  font-size: .8em;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.shopblocks-blog__hero-description,
+.shopblocks-article__description {
+  max-width: 62ch;
+  margin-top: 16px;
+}
+.shopblocks-blog__hero-conversion,
+.shopblocks-article__hero-conversion {
+  min-width: 0;
+}
+.shopblocks-lead-form {
+  width: 100%;
+}
+.shopblocks-lead-form__title {
+  margin-top: 0;
+}
+
+/* Blog sidebar lead modules. */
+.shopblocks-sidebar-cta {
+  overflow: hidden;
+  background: var(--shopblocks-color-surface, #fff);
+  border: 1px solid var(--shopblocks-color-border, #d9dde3);
+  border-radius: var(--shopblocks-radius-small, 6px);
+}
+.shopblocks-sidebar-cta__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+.shopblocks-sidebar-cta__body {
+  padding: 18px;
+}
+.shopblocks-sidebar-cta__title {
+  margin-top: 0;
+}
+.shopblocks-sidebar-cta__button {
+  width: 100%;
+  margin-top: 12px;
+}
+.shopblocks-blog.has-no-sidebar .shopblocks-blog__layout {
+  display: block;
+}
+.shopblocks-blog.has-no-sidebar .shopblocks-blog__main {
+  width: min(calc(100% - 40px), var(--shopblocks-page-width, 1280px));
+  margin-inline: auto;
+}
+
+/* Article / landing article shell. */
+.shopblocks-article__hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--shopblocks-article-hero-background, var(--shopblocks-color-primary, #1ea5e8));
+  color: var(--shopblocks-article-hero-color, #fff);
+}
+.shopblocks-article__hero-media,
+.shopblocks-article__hero-overlay {
+  position: absolute;
+  inset: 0;
+}
+.shopblocks-article__hero-media {
+  z-index: -2;
+  background-image: var(--shopblocks-article-hero-image);
+  background-position: center;
+  background-size: cover;
+}
+.shopblocks-article__hero-overlay {
+  z-index: -1;
+  background: var(--shopblocks-article-hero-overlay, rgba(17, 24, 39, .42));
+}
+.shopblocks-article__hero-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--shopblocks-layout-gap, 48px);
+  align-items: center;
+  width: min(calc(100% - 40px), var(--shopblocks-page-width, 1280px));
+  margin-inline: auto;
+  padding-block: var(--shopblocks-article-hero-padding, 72px);
+}
+.shopblocks-article.has-hero-conversion .shopblocks-article__hero-shell {
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 520px);
+}
+.shopblocks-article__title {
+  margin: 0;
+}
+.shopblocks-article__body {
+  width: min(calc(100% - 40px), var(--shopblocks-page-width, 1280px));
+  margin-inline: auto;
+  padding-block: var(--shopblocks-article-body-padding, 56px 80px);
+}
+.shopblocks-article__content,
+.shopblocks-article__content .shopblocks-gutenberg-content {
+  width: 100%;
+  max-width: none;
+}
+.shopblocks-location {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(260px, .7fr);
+  gap: var(--shopblocks-layout-gap, 48px);
+  align-items: center;
+  margin-bottom: 48px;
+}
+.shopblocks-location__map iframe {
+  display: block;
+  width: 100%;
+  min-height: 360px;
+  border: 0;
+}
+.shopblocks-location__title {
+  margin-top: 0;
+}
+
+@media (max-width: 900px) {
+  .shopblocks-blog.has-hero-conversion .shopblocks-blog__hero-shell,
+  .shopblocks-article.has-hero-conversion .shopblocks-article__hero-shell,
+  .shopblocks-location {
+    grid-template-columns: 1fr;
+  }
+  .shopblocks-blog.has-hero-conversion .shopblocks-blog__hero-content {
+    text-align: center;
+  }
+  .shopblocks-blog.has-hero-conversion .shopblocks-blog__meta,
+  .shopblocks-blog.has-hero-conversion .shopblocks-hero-actions {
+    justify-content: center;
+  }
+}
+@media (max-width: 600px) {
+  .shopblocks-blog__hero-shell,
+  .shopblocks-article__hero-shell,
+  .shopblocks-article__body,
+  .shopblocks-blog.has-no-sidebar .shopblocks-blog__main {
+    width: calc(100% - 28px);
+  }
+  .shopblocks-article__hero-shell {
+    padding-block: 44px;
+  }
+  .shopblocks-location__map iframe {
+    min-height: 280px;
+  }
+  .shopblocks-hero-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  .shopblocks-button {
+    width: 100%;
   }
 }

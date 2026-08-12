@@ -14,18 +14,47 @@ while ( have_posts() ) : the_post();
 	$faqs                = get_post_meta( $post_id, '_shopblocks_blog_faqs', true );
 	$faq_heading         = get_post_meta( $post_id, '_shopblocks_blog_faq_heading', true );
 	$hero_url            = has_post_thumbnail() ? get_the_post_thumbnail_url( $post_id, 'full' ) : '';
+	$eyebrow             = get_post_meta( $post_id, '_shopblocks_hero_eyebrow', true );
+	$hero_description    = get_post_meta( $post_id, '_shopblocks_hero_description', true );
+	$primary_label       = get_post_meta( $post_id, '_shopblocks_primary_cta_label', true );
+	$primary_url         = get_post_meta( $post_id, '_shopblocks_primary_cta_url', true );
+	$secondary_label     = get_post_meta( $post_id, '_shopblocks_secondary_cta_label', true );
+	$secondary_url       = get_post_meta( $post_id, '_shopblocks_secondary_cta_url', true );
+	$hero_form_shortcode = shopblocks_get_lead_form_shortcode( $post_id, '_shopblocks_hero_form_shortcode' );
+	$sidebar_form_heading = get_post_meta( $post_id, '_shopblocks_sidebar_form_heading', true );
+	$sidebar_form_shortcode = shopblocks_get_lead_form_shortcode( $post_id, '_shopblocks_sidebar_form_shortcode' );
+	$has_sidebar = (
+		( '1' === $newsletter && trim( (string) get_option( 'shopblocks_newsletter_shortcode', '' ) ) ) ||
+		( shopblocks_has_woocommerce() && trim( (string) $product_ids ) ) ||
+		trim( (string) $helpful ) || trim( (string) $custom_content ) ||
+		trim( (string) shopblocks_render_sidebar_cta( $post_id ) ) ||
+		trim( (string) $sidebar_form_shortcode )
+	);
 	?>
-	<main class="shopblocks-page shopblocks-blog shopblocks-single-blog">
+	<main class="shopblocks-page shopblocks-blog shopblocks-single-blog<?php echo $hero_form_shortcode ? ' has-hero-conversion' : ''; ?><?php echo $has_sidebar ? ' has-sidebar' : ' has-no-sidebar'; ?>">
 		<header class="shopblocks-blog__hero<?php echo $hero_url ? ' has-background' : ' has-no-background'; ?>"<?php if ( $hero_url ) : ?> style="--shopblocks-blog-hero-image:url('<?php echo esc_url( $hero_url ); ?>')"<?php endif; ?>>
 			<?php if ( $hero_url ) : ?><div class="shopblocks-blog__hero-media" aria-hidden="true"></div><?php endif; ?>
 			<div class="shopblocks-blog__hero-overlay" aria-hidden="true"></div>
-			<div class="shopblocks-blog__hero-content">
-				<h1 class="shopblocks-blog__title"><?php the_title(); ?></h1>
-				<div class="shopblocks-blog__meta">
-					<time class="shopblocks-blog__date" datetime="<?php echo esc_attr( get_the_date( DATE_W3C ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time>
-					<span class="shopblocks-blog__meta-separator" aria-hidden="true">|</span>
-					<span class="shopblocks-blog__author"><?php echo esc_html( get_the_author() ); ?></span>
+			<div class="shopblocks-blog__hero-shell">
+				<div class="shopblocks-blog__hero-content">
+					<?php if ( $eyebrow ) : ?><div class="shopblocks-blog__eyebrow"><?php echo esc_html( $eyebrow ); ?></div><?php endif; ?>
+					<h1 class="shopblocks-blog__title"><?php the_title(); ?></h1>
+					<?php if ( $hero_description ) : ?><p class="shopblocks-blog__hero-description"><?php echo esc_html( $hero_description ); ?></p><?php endif; ?>
+					<div class="shopblocks-blog__meta">
+						<time class="shopblocks-blog__date" datetime="<?php echo esc_attr( get_the_date( DATE_W3C ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time>
+						<span class="shopblocks-blog__meta-separator" aria-hidden="true">|</span>
+						<span class="shopblocks-blog__author"><?php echo esc_html( get_the_author() ); ?></span>
+					</div>
+					<?php if ( ( $primary_label && $primary_url ) || ( $secondary_label && $secondary_url ) ) : ?>
+						<div class="shopblocks-hero-actions">
+							<?php if ( $primary_label && $primary_url ) : ?><a class="shopblocks-button shopblocks-button--primary" href="<?php echo esc_url( $primary_url ); ?>"><?php echo esc_html( $primary_label ); ?></a><?php endif; ?>
+							<?php if ( $secondary_label && $secondary_url ) : ?><a class="shopblocks-button shopblocks-button--secondary" href="<?php echo esc_url( $secondary_url ); ?>"><?php echo esc_html( $secondary_label ); ?></a><?php endif; ?>
+						</div>
+					<?php endif; ?>
 				</div>
+				<?php if ( $hero_form_shortcode ) : ?>
+					<div class="shopblocks-blog__hero-conversion"><?php echo shopblocks_render_lead_form( $post_id, '_shopblocks_hero_form_shortcode' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
+				<?php endif; ?>
 			</div>
 		</header>
 
@@ -37,31 +66,18 @@ while ( have_posts() ) : the_post();
 				<?php echo shopblocks_render_faqs( $faqs, $faq_heading ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</div>
 
+			<?php if ( $has_sidebar ) : ?>
 			<aside class="shopblocks-blog__sidebar" aria-label="<?php esc_attr_e( 'Blog sidebar', 'shopblocks-wp' ); ?>">
-				<?php if ( '1' === $newsletter ) : ?>
-					<section class="shopblocks-sidebar-block shopblocks-sidebar-block--newsletter">
-						<?php echo do_shortcode( '[shopblocks_newsletter title="' . esc_attr( $newsletter_title ?: __( 'Join Our Mailing List.', 'shopblocks-wp' ) ) . '" description="' . esc_attr( $newsletter_text ) . '"]' ); ?>
-					</section>
+				<?php $cta = shopblocks_render_sidebar_cta( $post_id ); if ( $cta ) : ?><section class="shopblocks-sidebar-block shopblocks-sidebar-block--cta"><?php echo $cta; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></section><?php endif; ?>
+				<?php if ( $sidebar_form_shortcode ) : ?><section class="shopblocks-sidebar-block shopblocks-sidebar-block--form"><?php echo shopblocks_render_lead_form( $post_id, '_shopblocks_sidebar_form_shortcode', $sidebar_form_heading ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></section><?php endif; ?>
+				<?php if ( '1' === $newsletter && trim( (string) get_option( 'shopblocks_newsletter_shortcode', '' ) ) ) : ?>
+					<section class="shopblocks-sidebar-block shopblocks-sidebar-block--newsletter"><?php echo do_shortcode( '[shopblocks_newsletter title="' . esc_attr( $newsletter_title ?: __( 'Join Our Mailing List.', 'shopblocks-wp' ) ) . '" description="' . esc_attr( $newsletter_text ) . '"]' ); ?></section>
 				<?php endif; ?>
-
-				<?php if ( $product_ids ) : ?>
-					<section class="shopblocks-sidebar-block shopblocks-sidebar-block--products" aria-label="<?php esc_attr_e( 'Featured products', 'shopblocks-wp' ); ?>">
-						<?php echo do_shortcode( '[shopblocks_products ids="' . esc_attr( $product_ids ) . '" limit="12" columns="1" layout="sidebar" class="shopblocks-sidebar-products"]' ); ?>
-					</section>
-				<?php endif; ?>
-
-				<?php if ( trim( (string) $helpful ) ) : ?>
-					<section class="shopblocks-sidebar-block shopblocks-sidebar-block--links">
-						<?php echo shopblocks_render_helpful_links( $helpful, $helpful_heading ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-					</section>
-				<?php endif; ?>
-
-				<?php if ( trim( (string) $custom_content ) ) : ?>
-					<section class="shopblocks-sidebar-block shopblocks-sidebar-block--custom">
-						<?php echo do_shortcode( wp_kses_post( $custom_content ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-					</section>
-				<?php endif; ?>
+				<?php if ( shopblocks_has_woocommerce() && $product_ids ) : ?><section class="shopblocks-sidebar-block shopblocks-sidebar-block--products" aria-label="<?php esc_attr_e( 'Featured products', 'shopblocks-wp' ); ?>"><?php echo do_shortcode( '[shopblocks_products ids="' . esc_attr( $product_ids ) . '" limit="12" columns="1" layout="sidebar" class="shopblocks-sidebar-products"]' ); ?></section><?php endif; ?>
+				<?php if ( trim( (string) $helpful ) ) : ?><section class="shopblocks-sidebar-block shopblocks-sidebar-block--links"><?php echo shopblocks_render_helpful_links( $helpful, $helpful_heading ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></section><?php endif; ?>
+				<?php if ( trim( (string) $custom_content ) ) : ?><section class="shopblocks-sidebar-block shopblocks-sidebar-block--custom"><?php echo do_shortcode( wp_kses_post( $custom_content ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></section><?php endif; ?>
 			</aside>
+			<?php endif; ?>
 		</div>
 	</main>
 <?php endwhile;
