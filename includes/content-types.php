@@ -30,15 +30,71 @@ add_action( 'init', 'shopblocks_register_blogs_cpt' );
 
 /** Meta boxes. */
 function shopblocks_add_editorial_meta_boxes() {
-	add_meta_box( 'shopblocks_blog_sidebar', __( 'Blog Sidebar', 'shopblocks-wp' ), 'shopblocks_blog_sidebar_meta_box', 'shopblocks_blog', 'normal', 'high' );
+	add_meta_box( 'shopblocks_content_layout', __( 'Content Template', 'shopblocks-wp' ), 'shopblocks_content_layout_meta_box', 'shopblocks_blog', 'side', 'high' );
+	add_meta_box( 'shopblocks_conversion', __( 'Hero & Conversion', 'shopblocks-wp' ), 'shopblocks_conversion_meta_box', 'shopblocks_blog', 'normal', 'high' );
+	add_meta_box( 'shopblocks_blog_sidebar', __( 'Blog Sidebar', 'shopblocks-wp' ), 'shopblocks_blog_sidebar_meta_box', 'shopblocks_blog', 'normal', 'default' );
 	add_meta_box( 'shopblocks_blog_faqs', __( 'Blog FAQs', 'shopblocks-wp' ), 'shopblocks_blog_faqs_meta_box', 'shopblocks_blog', 'normal', 'default' );
 	add_meta_box( 'shopblocks_collection_related_content', __( 'Related Content Panel', 'shopblocks-wp' ), 'shopblocks_collection_related_content_meta_box', 'collection', 'normal', 'high' );
 	add_meta_box( 'shopblocks_collection_faqs', __( 'Collection FAQs', 'shopblocks-wp' ), 'shopblocks_collection_faqs_meta_box', 'collection', 'normal', 'default' );
 }
 add_action( 'add_meta_boxes', 'shopblocks_add_editorial_meta_boxes' );
 
-function shopblocks_blog_sidebar_meta_box( $post ) {
+
+/** Blog CPT presentation mode. Existing Blogs default to the 2.0 Blog template. */
+function shopblocks_content_layout_meta_box( $post ) {
+	$layout = get_post_meta( $post->ID, '_shopblocks_content_layout', true );
+	$layout = in_array( $layout, array( 'blog', 'article' ), true ) ? $layout : 'blog';
+	?>
+	<p><label for="shopblocks_content_layout"><strong><?php esc_html_e( 'Template', 'shopblocks-wp' ); ?></strong></label></p>
+	<select class="widefat" id="shopblocks_content_layout" name="shopblocks_content_layout">
+		<option value="blog" <?php selected( 'blog', $layout ); ?>><?php esc_html_e( 'Blog Post — hero + modular sidebar', 'shopblocks-wp' ); ?></option>
+		<option value="article" <?php selected( 'article', $layout ); ?>><?php esc_html_e( 'Article / Landing Article — conversion hero + full-width content', 'shopblocks-wp' ); ?></option>
+	</select>
+	<p class="description"><?php esc_html_e( 'Article mode is designed for service, location, treatment, and lead-generation content. It does not require WooCommerce.', 'shopblocks-wp' ); ?></p>
+	<?php
+}
+
+/** Shared hero/conversion settings for Blog and Article layouts. */
+function shopblocks_conversion_meta_box( $post ) {
 	wp_nonce_field( 'shopblocks_save_blog_sidebar', 'shopblocks_blog_sidebar_nonce' );
+	$fields = array(
+		'eyebrow' => get_post_meta( $post->ID, '_shopblocks_hero_eyebrow', true ),
+		'description' => get_post_meta( $post->ID, '_shopblocks_hero_description', true ),
+		'primary_label' => get_post_meta( $post->ID, '_shopblocks_primary_cta_label', true ),
+		'primary_url' => get_post_meta( $post->ID, '_shopblocks_primary_cta_url', true ),
+		'secondary_label' => get_post_meta( $post->ID, '_shopblocks_secondary_cta_label', true ),
+		'secondary_url' => get_post_meta( $post->ID, '_shopblocks_secondary_cta_url', true ),
+		'hero_form' => get_post_meta( $post->ID, '_shopblocks_hero_form_shortcode', true ),
+		'location_name' => get_post_meta( $post->ID, '_shopblocks_location_name', true ),
+		'location_address' => get_post_meta( $post->ID, '_shopblocks_location_address', true ),
+		'location_phone' => get_post_meta( $post->ID, '_shopblocks_location_phone', true ),
+		'location_email' => get_post_meta( $post->ID, '_shopblocks_location_email', true ),
+		'map_url' => get_post_meta( $post->ID, '_shopblocks_location_map_url', true ),
+	);
+	?>
+	<p><label><strong><?php esc_html_e( 'Hero eyebrow', 'shopblocks-wp' ); ?></strong><br><input class="widefat" name="shopblocks_hero_eyebrow" value="<?php echo esc_attr( $fields['eyebrow'] ); ?>" placeholder="LIMITED AVAILABILITY"></label></p>
+	<p><label><strong><?php esc_html_e( 'Hero description', 'shopblocks-wp' ); ?></strong><br><textarea class="widefat" rows="3" name="shopblocks_hero_description"><?php echo esc_textarea( $fields['description'] ); ?></textarea></label></p>
+	<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+		<p><label><strong><?php esc_html_e( 'Primary CTA label', 'shopblocks-wp' ); ?></strong><br><input class="widefat" name="shopblocks_primary_cta_label" value="<?php echo esc_attr( $fields['primary_label'] ); ?>" placeholder="Book Free Consultation"></label></p>
+		<p><label><strong><?php esc_html_e( 'Primary CTA URL', 'shopblocks-wp' ); ?></strong><br><input class="widefat" type="url" name="shopblocks_primary_cta_url" value="<?php echo esc_attr( $fields['primary_url'] ); ?>"></label></p>
+		<p><label><strong><?php esc_html_e( 'Secondary CTA label', 'shopblocks-wp' ); ?></strong><br><input class="widefat" name="shopblocks_secondary_cta_label" value="<?php echo esc_attr( $fields['secondary_label'] ); ?>" placeholder="Find a Location"></label></p>
+		<p><label><strong><?php esc_html_e( 'Secondary CTA URL', 'shopblocks-wp' ); ?></strong><br><input class="widefat" type="url" name="shopblocks_secondary_cta_url" value="<?php echo esc_attr( $fields['secondary_url'] ); ?>"></label></p>
+	</div>
+	<p><label><strong><?php esc_html_e( 'Hero form / booking shortcode', 'shopblocks-wp' ); ?></strong><br><input class="widefat code" name="shopblocks_hero_form_shortcode" value="<?php echo esc_attr( $fields['hero_form'] ); ?>" placeholder="[wpforms id=&quot;123&quot;]"></label></p>
+	<p class="description"><?php esc_html_e( 'Use any provider shortcode. Leave blank to remove the conversion panel. A global lead form can also be configured in ShopBlocks settings.', 'shopblocks-wp' ); ?></p>
+	<hr>
+	<p><strong><?php esc_html_e( 'Optional Location Section (Article mode)', 'shopblocks-wp' ); ?></strong></p>
+	<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+		<p><label><?php esc_html_e( 'Location name', 'shopblocks-wp' ); ?><br><input class="widefat" name="shopblocks_location_name" value="<?php echo esc_attr( $fields['location_name'] ); ?>"></label></p>
+		<p><label><?php esc_html_e( 'Phone', 'shopblocks-wp' ); ?><br><input class="widefat" name="shopblocks_location_phone" value="<?php echo esc_attr( $fields['location_phone'] ); ?>"></label></p>
+		<p><label><?php esc_html_e( 'Address', 'shopblocks-wp' ); ?><br><textarea class="widefat" rows="2" name="shopblocks_location_address"><?php echo esc_textarea( $fields['location_address'] ); ?></textarea></label></p>
+		<p><label><?php esc_html_e( 'Email', 'shopblocks-wp' ); ?><br><input class="widefat" type="email" name="shopblocks_location_email" value="<?php echo esc_attr( $fields['location_email'] ); ?>"></label></p>
+	</div>
+	<p><label><strong><?php esc_html_e( 'Google Maps embed URL', 'shopblocks-wp' ); ?></strong><br><input class="widefat" type="url" name="shopblocks_location_map_url" value="<?php echo esc_attr( $fields['map_url'] ); ?>" placeholder="https://www.google.com/maps/embed?... "></label></p>
+	<?php
+}
+
+function shopblocks_blog_sidebar_meta_box( $post ) {
 	$product_ids       = get_post_meta( $post->ID, '_shopblocks_sidebar_product_ids', true );
 	$helpful           = get_post_meta( $post->ID, '_shopblocks_helpful_links', true );
 	$helpful_heading   = get_post_meta( $post->ID, '_shopblocks_helpful_links_heading', true );
@@ -47,21 +103,43 @@ function shopblocks_blog_sidebar_meta_box( $post ) {
 	$newsletter_title  = get_post_meta( $post->ID, '_shopblocks_newsletter_title', true );
 	$newsletter_text   = get_post_meta( $post->ID, '_shopblocks_newsletter_description', true );
 	$custom_content    = get_post_meta( $post->ID, '_shopblocks_sidebar_custom_content', true );
+	$cta_image         = get_post_meta( $post->ID, '_shopblocks_sidebar_cta_image', true );
+	$cta_heading       = get_post_meta( $post->ID, '_shopblocks_sidebar_cta_heading', true );
+	$cta_text          = get_post_meta( $post->ID, '_shopblocks_sidebar_cta_text', true );
+	$cta_label         = get_post_meta( $post->ID, '_shopblocks_sidebar_cta_label', true );
+	$cta_url           = get_post_meta( $post->ID, '_shopblocks_sidebar_cta_url', true );
+	$form_heading      = get_post_meta( $post->ID, '_shopblocks_sidebar_form_heading', true );
+	$form_shortcode    = get_post_meta( $post->ID, '_shopblocks_sidebar_form_shortcode', true );
 	?>
-	<p><label><input type="checkbox" name="shopblocks_show_newsletter" value="1" <?php checked( '1', $newsletter ); ?>> <?php esc_html_e( 'Display the newsletter panel', 'shopblocks-wp' ); ?></label></p>
+	<p><strong><?php esc_html_e( 'Lead-generation modules', 'shopblocks-wp' ); ?></strong></p>
+	<p><label><?php esc_html_e( 'CTA image URL', 'shopblocks-wp' ); ?><br><input type="url" class="widefat" name="shopblocks_sidebar_cta_image" value="<?php echo esc_attr( $cta_image ); ?>"></label></p>
+	<p><label><?php esc_html_e( 'CTA heading', 'shopblocks-wp' ); ?><br><input class="widefat" name="shopblocks_sidebar_cta_heading" value="<?php echo esc_attr( $cta_heading ); ?>"></label></p>
+	<p><label><?php esc_html_e( 'CTA description', 'shopblocks-wp' ); ?><br><textarea class="widefat" rows="2" name="shopblocks_sidebar_cta_text"><?php echo esc_textarea( $cta_text ); ?></textarea></label></p>
+	<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+		<p><label><?php esc_html_e( 'CTA button label', 'shopblocks-wp' ); ?><br><input class="widefat" name="shopblocks_sidebar_cta_label" value="<?php echo esc_attr( $cta_label ); ?>"></label></p>
+		<p><label><?php esc_html_e( 'CTA button URL', 'shopblocks-wp' ); ?><br><input type="url" class="widefat" name="shopblocks_sidebar_cta_url" value="<?php echo esc_attr( $cta_url ); ?>"></label></p>
+	</div>
+	<p><label><?php esc_html_e( 'Sidebar form heading', 'shopblocks-wp' ); ?><br><input class="widefat" name="shopblocks_sidebar_form_heading" value="<?php echo esc_attr( $form_heading ); ?>"></label></p>
+	<p><label><?php esc_html_e( 'Sidebar form shortcode', 'shopblocks-wp' ); ?><br><input class="widefat code" name="shopblocks_sidebar_form_shortcode" value="<?php echo esc_attr( $form_shortcode ); ?>" placeholder="[gravityform id=&quot;4&quot;]"></label></p>
+	<hr>
+	<p><strong><?php esc_html_e( 'Editorial modules', 'shopblocks-wp' ); ?></strong></p>
+	<p><label><input type="checkbox" name="shopblocks_show_newsletter" value="1" <?php checked( '1', $newsletter ); ?>> <?php esc_html_e( 'Display newsletter when a global newsletter shortcode is configured', 'shopblocks-wp' ); ?></label></p>
 	<p><label><strong><?php esc_html_e( 'Newsletter heading', 'shopblocks-wp' ); ?></strong><br><input type="text" class="widefat" name="shopblocks_newsletter_title" value="<?php echo esc_attr( $newsletter_title ?: __( 'Join Our Mailing List.', 'shopblocks-wp' ) ); ?>"></label></p>
 	<p><label><strong><?php esc_html_e( 'Newsletter supporting text', 'shopblocks-wp' ); ?></strong><br><textarea class="widefat" rows="2" name="shopblocks_newsletter_description"><?php echo esc_textarea( $newsletter_text ); ?></textarea></label></p>
-	<hr>
-	<p><strong><?php esc_html_e( 'Sidebar Products', 'shopblocks-wp' ); ?></strong></p>
-	<input type="text" class="widefat" name="shopblocks_sidebar_product_ids" value="<?php echo esc_attr( $product_ids ); ?>" placeholder="123, 456">
-	<p class="description"><?php esc_html_e( 'Enter WooCommerce product IDs in display order. These render as vertical sidebar cards only; Blogs never receive the Collection product grid.', 'shopblocks-wp' ); ?></p>
+	<?php if ( shopblocks_has_woocommerce() ) : ?>
+		<hr><p><strong><?php esc_html_e( 'Commerce module — Sidebar Products', 'shopblocks-wp' ); ?></strong></p>
+		<input type="text" class="widefat" name="shopblocks_sidebar_product_ids" value="<?php echo esc_attr( $product_ids ); ?>" placeholder="123, 456">
+		<p class="description"><?php esc_html_e( 'Optional WooCommerce product IDs in display order.', 'shopblocks-wp' ); ?></p>
+	<?php else : ?>
+		<input type="hidden" name="shopblocks_sidebar_product_ids" value="<?php echo esc_attr( $product_ids ); ?>">
+		<p class="description"><?php esc_html_e( 'WooCommerce is not active. Product modules are disabled; Blog, Article, CTA, form, FAQ, and link features remain available.', 'shopblocks-wp' ); ?></p>
+	<?php endif; ?>
 	<hr>
 	<p><label><strong><?php esc_html_e( 'Helpful Links heading', 'shopblocks-wp' ); ?></strong><br><input type="text" class="widefat" name="shopblocks_helpful_links_heading" value="<?php echo esc_attr( $helpful_heading ?: __( 'Other Helpful Links', 'shopblocks-wp' ) ); ?>"></label></p>
-	<textarea class="widefat" rows="5" name="shopblocks_helpful_links" placeholder="Lab Tests | /lab-tests/&#10;FAQ | /faq/"><?php echo esc_textarea( $helpful ); ?></textarea>
+	<textarea class="widefat" rows="5" name="shopblocks_helpful_links" placeholder="Consultation | /contact/&#10;Locations | /locations/"><?php echo esc_textarea( $helpful ); ?></textarea>
 	<p class="description"><?php esc_html_e( 'Enter one link per line using Label | URL.', 'shopblocks-wp' ); ?></p>
 	<hr>
 	<p><label><strong><?php esc_html_e( 'Optional custom sidebar content', 'shopblocks-wp' ); ?></strong><br><textarea class="widefat code" rows="5" name="shopblocks_sidebar_custom_content" placeholder="[shortcode] or simple HTML"><?php echo esc_textarea( $custom_content ); ?></textarea></label></p>
-	<p class="description"><?php esc_html_e( 'Rendered after Helpful Links. Shortcodes are supported. Leave blank to omit this block.', 'shopblocks-wp' ); ?></p>
 	<?php
 }
 
@@ -169,6 +247,27 @@ function shopblocks_save_blog_sidebar( $post_id ) {
 	update_post_meta( $post_id, '_shopblocks_sidebar_custom_content', wp_kses_post( wp_unslash( $_POST['shopblocks_sidebar_custom_content'] ?? '' ) ) );
 	update_post_meta( $post_id, '_shopblocks_blog_faqs', sanitize_textarea_field( wp_unslash( $_POST['shopblocks_blog_faqs'] ?? '' ) ) );
 	update_post_meta( $post_id, '_shopblocks_blog_faq_heading', sanitize_text_field( wp_unslash( $_POST['shopblocks_blog_faq_heading'] ?? '' ) ) );
+	$layout = sanitize_key( wp_unslash( $_POST['shopblocks_content_layout'] ?? 'blog' ) );
+	update_post_meta( $post_id, '_shopblocks_content_layout', in_array( $layout, array( 'blog', 'article' ), true ) ? $layout : 'blog' );
+	update_post_meta( $post_id, '_shopblocks_hero_eyebrow', sanitize_text_field( wp_unslash( $_POST['shopblocks_hero_eyebrow'] ?? '' ) ) );
+	update_post_meta( $post_id, '_shopblocks_hero_description', sanitize_textarea_field( wp_unslash( $_POST['shopblocks_hero_description'] ?? '' ) ) );
+	update_post_meta( $post_id, '_shopblocks_primary_cta_label', sanitize_text_field( wp_unslash( $_POST['shopblocks_primary_cta_label'] ?? '' ) ) );
+	update_post_meta( $post_id, '_shopblocks_primary_cta_url', esc_url_raw( wp_unslash( $_POST['shopblocks_primary_cta_url'] ?? '' ) ) );
+	update_post_meta( $post_id, '_shopblocks_secondary_cta_label', sanitize_text_field( wp_unslash( $_POST['shopblocks_secondary_cta_label'] ?? '' ) ) );
+	update_post_meta( $post_id, '_shopblocks_secondary_cta_url', esc_url_raw( wp_unslash( $_POST['shopblocks_secondary_cta_url'] ?? '' ) ) );
+	update_post_meta( $post_id, '_shopblocks_hero_form_shortcode', sanitize_text_field( wp_unslash( $_POST['shopblocks_hero_form_shortcode'] ?? '' ) ) );
+	update_post_meta( $post_id, '_shopblocks_location_name', sanitize_text_field( wp_unslash( $_POST['shopblocks_location_name'] ?? '' ) ) );
+	update_post_meta( $post_id, '_shopblocks_location_address', sanitize_textarea_field( wp_unslash( $_POST['shopblocks_location_address'] ?? '' ) ) );
+	update_post_meta( $post_id, '_shopblocks_location_phone', sanitize_text_field( wp_unslash( $_POST['shopblocks_location_phone'] ?? '' ) ) );
+	update_post_meta( $post_id, '_shopblocks_location_email', sanitize_email( wp_unslash( $_POST['shopblocks_location_email'] ?? '' ) ) );
+	update_post_meta( $post_id, '_shopblocks_location_map_url', esc_url_raw( wp_unslash( $_POST['shopblocks_location_map_url'] ?? '' ) ) );
+	update_post_meta( $post_id, '_shopblocks_sidebar_cta_image', esc_url_raw( wp_unslash( $_POST['shopblocks_sidebar_cta_image'] ?? '' ) ) );
+	update_post_meta( $post_id, '_shopblocks_sidebar_cta_heading', sanitize_text_field( wp_unslash( $_POST['shopblocks_sidebar_cta_heading'] ?? '' ) ) );
+	update_post_meta( $post_id, '_shopblocks_sidebar_cta_text', sanitize_textarea_field( wp_unslash( $_POST['shopblocks_sidebar_cta_text'] ?? '' ) ) );
+	update_post_meta( $post_id, '_shopblocks_sidebar_cta_label', sanitize_text_field( wp_unslash( $_POST['shopblocks_sidebar_cta_label'] ?? '' ) ) );
+	update_post_meta( $post_id, '_shopblocks_sidebar_cta_url', esc_url_raw( wp_unslash( $_POST['shopblocks_sidebar_cta_url'] ?? '' ) ) );
+	update_post_meta( $post_id, '_shopblocks_sidebar_form_heading', sanitize_text_field( wp_unslash( $_POST['shopblocks_sidebar_form_heading'] ?? '' ) ) );
+	update_post_meta( $post_id, '_shopblocks_sidebar_form_shortcode', sanitize_text_field( wp_unslash( $_POST['shopblocks_sidebar_form_shortcode'] ?? '' ) ) );
 }
 add_action( 'save_post_shopblocks_blog', 'shopblocks_save_blog_sidebar' );
 
@@ -258,4 +357,46 @@ function shopblocks_render_helpful_links( $raw, $heading = '' ) {
 	$heading = $heading ?: __( 'Other Helpful Links', 'shopblocks-wp' );
 	ob_start(); ?><div class="shopblocks-helpful-links"><h2 class="shopblocks-helpful-links__title"><?php echo esc_html( $heading ); ?></h2><ul class="shopblocks-helpful-links__list"><?php foreach ( $items as $item ) : ?><li><a href="<?php echo esc_url( $item['url'] ); ?>"><?php echo esc_html( $item['label'] ); ?></a></li><?php endforeach; ?></ul></div><?php
 	return ob_get_clean();
+}
+
+
+/** Resolve a per-post form shortcode with an optional global fallback. */
+function shopblocks_get_lead_form_shortcode( $post_id, $meta_key ) {
+	$shortcode = trim( (string) get_post_meta( $post_id, $meta_key, true ) );
+	if ( '' === $shortcode ) {
+		$shortcode = trim( (string) get_option( 'shopblocks_lead_form_shortcode', '' ) );
+	}
+	return $shortcode;
+}
+
+/** Render the generic lead-generation CTA card used in Blog sidebars. */
+function shopblocks_render_sidebar_cta( $post_id ) {
+	$image   = get_post_meta( $post_id, '_shopblocks_sidebar_cta_image', true );
+	$heading = get_post_meta( $post_id, '_shopblocks_sidebar_cta_heading', true );
+	$text    = get_post_meta( $post_id, '_shopblocks_sidebar_cta_text', true );
+	$label   = get_post_meta( $post_id, '_shopblocks_sidebar_cta_label', true );
+	$url     = get_post_meta( $post_id, '_shopblocks_sidebar_cta_url', true );
+	if ( ! $image && ! $heading && ! $text && ! ( $label && $url ) ) { return ''; }
+	ob_start(); ?>
+	<div class="shopblocks-sidebar-cta">
+		<?php if ( $image ) : ?><img class="shopblocks-sidebar-cta__image" src="<?php echo esc_url( $image ); ?>" alt=""><?php endif; ?>
+		<div class="shopblocks-sidebar-cta__body">
+			<?php if ( $heading ) : ?><h2 class="shopblocks-sidebar-cta__title"><?php echo esc_html( $heading ); ?></h2><?php endif; ?>
+			<?php if ( $text ) : ?><p class="shopblocks-sidebar-cta__text"><?php echo esc_html( $text ); ?></p><?php endif; ?>
+			<?php if ( $label && $url ) : ?><a class="shopblocks-sidebar-cta__button" href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $label ); ?></a><?php endif; ?>
+		</div>
+	</div>
+	<?php return ob_get_clean();
+}
+
+/** Render a generic shortcode-powered lead form. */
+function shopblocks_render_lead_form( $post_id, $meta_key, $heading = '' ) {
+	$shortcode = shopblocks_get_lead_form_shortcode( $post_id, $meta_key );
+	if ( '' === $shortcode ) { return ''; }
+	ob_start(); ?>
+	<div class="shopblocks-lead-form">
+		<?php if ( $heading ) : ?><h2 class="shopblocks-lead-form__title"><?php echo esc_html( $heading ); ?></h2><?php endif; ?>
+		<div class="shopblocks-lead-form__embed"><?php echo do_shortcode( $shortcode ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
+	</div>
+	<?php return ob_get_clean();
 }

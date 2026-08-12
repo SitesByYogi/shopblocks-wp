@@ -2,6 +2,20 @@
 
 ShopBlocks adds two purpose-built public content types for WooCommerce publishing while leaving native WordPress Posts untouched.
 
+## 2.1.0 — Universal Article Framework
+
+- WooCommerce is now optional; Blogs and Articles work on lead-generation and editorial WordPress sites without commerce.
+- Added Blog Post and Article / Landing Article presentation modes to the existing ShopBlocks Blog content type.
+- Added lead-generation hero fields with eyebrow, description, primary/secondary CTAs, and provider-agnostic form or booking shortcode support.
+- Added reusable Blog sidebar CTA cards and sidebar form modules.
+- Added optional Article location section with map embed URL, address, phone, and email.
+- Added dedicated `single-article.php` template and scoped Article Template CSS setting.
+- Existing Blogs default to the 2.0 Blog template, preserving current sidebar and WooCommerce behavior.
+- Existing Collections and commerce shortcodes remain backward compatible.
+- Newsletter markup is omitted completely when no newsletter shortcode is configured.
+- Added Lead Generation Article block pattern.
+
+
 ## Content types
 
 ### Blogs

@@ -40,7 +40,8 @@ function shopblocks_settings_page() {
 		</nav>
 		<?php if ( 'instructions' === $tab ) : ?>
 			<h2><?php esc_html_e( 'Content Types', 'shopblocks-wp' ); ?></h2>
-			<p><strong><?php esc_html_e( 'Blogs', 'shopblocks-wp' ); ?></strong>: <?php esc_html_e( 'Editorial articles with a desktop sidebar and mobile stacked layout. Products are optional sidebar content and never populate automatically at the top.', 'shopblocks-wp' ); ?></p>
+			<p><strong><?php esc_html_e( 'Blogs', 'shopblocks-wp' ); ?></strong>: <?php esc_html_e( 'Editorial articles with a modular sidebar. Lead forms, CTA cards, helpful links, newsletters, and optional WooCommerce products can be mixed per post.', 'shopblocks-wp' ); ?></p>
+			<p><strong><?php esc_html_e( 'Articles', 'shopblocks-wp' ); ?></strong>: <?php esc_html_e( 'Use the Article template on any ShopBlocks Blog for service, location, treatment, and lead-generation pages with a conversion hero and no traditional sidebar.', 'shopblocks-wp' ); ?></p>
 			<p><strong><?php esc_html_e( 'Collections', 'shopblocks-wp' ); ?></strong>: <?php esc_html_e( 'Full-width shoppable articles with selected products near the top and no sidebar.', 'shopblocks-wp' ); ?></p>
 			<h2><?php esc_html_e( 'Available Shortcodes', 'shopblocks-wp' ); ?></h2>
 			<p><code>[shoppable_product_top id="123"]</code></p>
@@ -86,16 +87,20 @@ function shopblocks_register_settings() {
 	register_setting( 'shopblocks_settings', 'shopblocks_default_limit', array( 'type' => 'integer', 'sanitize_callback' => 'shopblocks_sanitize_limit', 'default' => 4 ) );
 	register_setting( 'shopblocks_settings', 'shopblocks_enable_styles', array( 'type' => 'boolean', 'sanitize_callback' => 'shopblocks_sanitize_checkbox', 'default' => 1 ) );
 	register_setting( 'shopblocks_settings', 'shopblocks_newsletter_shortcode', array( 'sanitize_callback' => 'sanitize_text_field', 'default' => '' ) );
+	register_setting( 'shopblocks_settings', 'shopblocks_lead_form_shortcode', array( 'sanitize_callback' => 'sanitize_text_field', 'default' => '' ) );
 
 	register_setting( 'shopblocks_settings', 'shopblocks_custom_css', array( 'type' => 'string', 'sanitize_callback' => 'shopblocks_sanitize_css', 'default' => '' ) );
 	register_setting( 'shopblocks_settings', 'shopblocks_blog_css', array( 'type' => 'string', 'sanitize_callback' => 'shopblocks_sanitize_css', 'default' => '' ) );
+	register_setting( 'shopblocks_settings', 'shopblocks_article_css', array( 'type' => 'string', 'sanitize_callback' => 'shopblocks_sanitize_css', 'default' => '' ) );
 	register_setting( 'shopblocks_settings', 'shopblocks_collection_css', array( 'type' => 'string', 'sanitize_callback' => 'shopblocks_sanitize_css', 'default' => '' ) );
 	add_settings_section( 'shopblocks_main_section', __( 'General Options', 'shopblocks-wp' ), '__return_false', 'shopblocks-settings' );
 	add_settings_field( 'shopblocks_default_limit', __( 'Default Product Limit', 'shopblocks-wp' ), 'shopblocks_default_limit_callback', 'shopblocks-settings', 'shopblocks_main_section' );
 	add_settings_field( 'shopblocks_enable_styles', __( 'Enable Plugin Styling', 'shopblocks-wp' ), 'shopblocks_enable_styles_callback', 'shopblocks-settings', 'shopblocks_main_section' );
 	add_settings_field( 'shopblocks_newsletter_shortcode', __( 'Newsletter Form Shortcode', 'shopblocks-wp' ), 'shopblocks_newsletter_shortcode_callback', 'shopblocks-settings', 'shopblocks_main_section' );
+	add_settings_field( 'shopblocks_lead_form_shortcode', __( 'Default Lead Form / Booking Shortcode', 'shopblocks-wp' ), 'shopblocks_lead_form_shortcode_callback', 'shopblocks-settings', 'shopblocks_main_section' );
 	add_settings_field( 'shopblocks_custom_css', __( 'Shared Template CSS', 'shopblocks-wp' ), 'shopblocks_custom_css_callback', 'shopblocks-settings', 'shopblocks_main_section' );
 	add_settings_field( 'shopblocks_blog_css', __( 'Blog Template CSS', 'shopblocks-wp' ), 'shopblocks_blog_css_callback', 'shopblocks-settings', 'shopblocks_main_section' );
+	add_settings_field( 'shopblocks_article_css', __( 'Article Template CSS', 'shopblocks-wp' ), 'shopblocks_article_css_callback', 'shopblocks-settings', 'shopblocks_main_section' );
 	add_settings_field( 'shopblocks_collection_css', __( 'Collection Template CSS', 'shopblocks-wp' ), 'shopblocks_collection_css_callback', 'shopblocks-settings', 'shopblocks_main_section' );
 
 
@@ -125,13 +130,15 @@ function shopblocks_register_settings() {
 	}
 	add_settings_field( 'shopblocks_custom_css_design', __( 'Shared Template CSS', 'shopblocks-wp' ), 'shopblocks_custom_css_callback', 'shopblocks-design', 'shopblocks_design_section' );
 	add_settings_field( 'shopblocks_blog_css_design', __( 'Blog Template CSS', 'shopblocks-wp' ), 'shopblocks_blog_css_callback', 'shopblocks-design', 'shopblocks_design_section' );
+	add_settings_field( 'shopblocks_article_css_design', __( 'Article Template CSS', 'shopblocks-wp' ), 'shopblocks_article_css_callback', 'shopblocks-design', 'shopblocks_design_section' );
 	add_settings_field( 'shopblocks_collection_css_design', __( 'Collection Template CSS', 'shopblocks-wp' ), 'shopblocks_collection_css_callback', 'shopblocks-design', 'shopblocks_design_section' );
 }
 add_action( 'admin_init', 'shopblocks_register_settings' );
 
 function shopblocks_default_limit_callback() { printf( '<input type="number" name="shopblocks_default_limit" value="%d" min="1" max="48">', absint( get_option( 'shopblocks_default_limit', 4 ) ) ); }
 function shopblocks_enable_styles_callback() { printf( '<label><input type="checkbox" name="shopblocks_enable_styles" value="1" %s> %s</label>', checked( 1, get_option( 'shopblocks_enable_styles', 1 ), false ), esc_html__( 'Load the default ShopBlocks stylesheet.', 'shopblocks-wp' ) ); }
-function shopblocks_newsletter_shortcode_callback() { printf( '<input type="text" name="shopblocks_newsletter_shortcode" value="%s" class="regular-text code" placeholder="[klaviyo_form id=&quot;ABC123&quot;]"><p class="description">%s</p>', esc_attr( get_option( 'shopblocks_newsletter_shortcode', '' ) ), esc_html__( 'Used by the newsletter panel in ShopBlocks Blogs.', 'shopblocks-wp' ) ); }
+function shopblocks_newsletter_shortcode_callback() { printf( '<input type="text" name="shopblocks_newsletter_shortcode" value="%s" class="regular-text code" placeholder="[klaviyo_form id=&quot;ABC123&quot;]"><p class="description">%s</p>', esc_attr( get_option( 'shopblocks_newsletter_shortcode', '' ) ), esc_html__( 'Optional. Newsletter blocks are omitted completely when this is blank.', 'shopblocks-wp' ) ); }
+function shopblocks_lead_form_shortcode_callback() { printf( '<input type="text" name="shopblocks_lead_form_shortcode" value="%s" class="regular-text code" placeholder="[wpforms id=&quot;123&quot;]"><p class="description">%s</p>', esc_attr( get_option( 'shopblocks_lead_form_shortcode', '' ) ), esc_html__( 'Provider-agnostic fallback for Blog/Article hero and sidebar forms. Per-post shortcodes override this value.', 'shopblocks-wp' ) ); }
 function shopblocks_design_token_callback( $args ) {
 	$option  = sanitize_key( $args['option'] );
 	$default = isset( $args['default'] ) ? $args['default'] : '';
@@ -141,10 +148,13 @@ function shopblocks_design_token_callback( $args ) {
 }
 
 function shopblocks_custom_css_callback() {
-	printf( '<textarea name="shopblocks_custom_css" rows="10" class="large-text code">%s</textarea><p class="description">%s</p>', esc_textarea( get_option( 'shopblocks_custom_css', '' ) ), esc_html__( 'Applied only inside both ShopBlocks Blog and Collection templates. Theme styles remain inherited outside these templates.', 'shopblocks-wp' ) );
+	printf( '<textarea name="shopblocks_custom_css" rows="10" class="large-text code">%s</textarea><p class="description">%s</p>', esc_textarea( get_option( 'shopblocks_custom_css', '' ) ), esc_html__( 'Applied only inside ShopBlocks Blog, Article, and Collection templates. Theme styles remain inherited elsewhere.', 'shopblocks-wp' ) );
 }
 function shopblocks_blog_css_callback() {
 	printf( '<textarea name="shopblocks_blog_css" rows="12" class="large-text code">%s</textarea><p class="description">%s</p>', esc_textarea( get_option( 'shopblocks_blog_css', '' ) ), esc_html__( 'Automatically scoped to .shopblocks-blog. You may safely use selectors such as h2, p, .button, or .shopblocks-blog__sidebar.', 'shopblocks-wp' ) );
+}
+function shopblocks_article_css_callback() {
+	printf( '<textarea name="shopblocks_article_css" rows="12" class="large-text code">%s</textarea><p class="description">%s</p>', esc_textarea( get_option( 'shopblocks_article_css', '' ) ), esc_html__( 'Automatically scoped to .shopblocks-article for lead-generation, service, treatment, and location Article layouts.', 'shopblocks-wp' ) );
 }
 function shopblocks_collection_css_callback() {
 	printf( '<textarea name="shopblocks_collection_css" rows="12" class="large-text code">%s</textarea><p class="description">%s</p>', esc_textarea( get_option( 'shopblocks_collection_css', '' ) ), esc_html__( 'Automatically scoped to .shopblocks-collection. You may safely use selectors such as h2, p, .button, or .shopblocks-product-card.', 'shopblocks-wp' ) );
