@@ -105,6 +105,8 @@ function shopblocks_blog_sidebar_meta_box( $post ) {
 	$newsletter        = '' === $newsletter ? '1' : $newsletter;
 	$newsletter_title  = get_post_meta( $post->ID, '_shopblocks_newsletter_title', true );
 	$newsletter_text   = get_post_meta( $post->ID, '_shopblocks_newsletter_description', true );
+	$newsletter_embed  = get_post_meta( $post->ID, '_shopblocks_newsletter_embed', true );
+	$default_newsletter_embed = shopblocks_get_blog_newsletter_embed();
 	$custom_content    = get_post_meta( $post->ID, '_shopblocks_sidebar_custom_content', true );
 	$cta_image         = get_post_meta( $post->ID, '_shopblocks_sidebar_cta_image', true );
 	$cta_heading       = get_post_meta( $post->ID, '_shopblocks_sidebar_cta_heading', true );
@@ -126,9 +128,17 @@ function shopblocks_blog_sidebar_meta_box( $post ) {
 	<p><label><?php esc_html_e( 'Sidebar form shortcode', 'shopblocks-wp' ); ?><br><input class="widefat code" name="shopblocks_sidebar_form_shortcode" value="<?php echo esc_attr( $form_shortcode ); ?>" placeholder="[gravityform id=&quot;4&quot;]"></label></p>
 	<hr>
 	<p><strong><?php esc_html_e( 'Editorial modules', 'shopblocks-wp' ); ?></strong></p>
-	<p><label><input type="checkbox" name="shopblocks_show_newsletter" value="1" <?php checked( '1', $newsletter ); ?>> <?php esc_html_e( 'Display newsletter when a global newsletter shortcode is configured', 'shopblocks-wp' ); ?></label></p>
-	<p><label><strong><?php esc_html_e( 'Newsletter heading', 'shopblocks-wp' ); ?></strong><br><input type="text" class="widefat" name="shopblocks_newsletter_title" value="<?php echo esc_attr( $newsletter_title ?: __( 'Join Our Mailing List.', 'shopblocks-wp' ) ); ?>"></label></p>
-	<p><label><strong><?php esc_html_e( 'Newsletter supporting text', 'shopblocks-wp' ); ?></strong><br><textarea class="widefat" rows="2" name="shopblocks_newsletter_description"><?php echo esc_textarea( $newsletter_text ); ?></textarea></label></p>
+	<p><label><input type="checkbox" name="shopblocks_show_newsletter" value="1" <?php checked( '1', $newsletter ); ?>> <?php esc_html_e( 'Display newsletter / signup module', 'shopblocks-wp' ); ?></label></p>
+	<p><label><strong><?php esc_html_e( 'Newsletter / signup shortcode or HTML override', 'shopblocks-wp' ); ?></strong><br><textarea class="widefat code" rows="5" name="shopblocks_newsletter_embed" placeholder="[newsletter_shortcode] or &lt;div class=&quot;klaviyo-form-ABC123&quot;&gt;&lt;/div&gt;"><?php echo esc_textarea( $newsletter_embed ?: $default_newsletter_embed ); ?></textarea></label></p>
+	<p class="description">
+		<?php if ( ! $newsletter_embed && $default_newsletter_embed ) : ?>
+			<?php esc_html_e( 'Using the global ShopBlocks newsletter/signup embed. Change this field to create a Blog-specific override.', 'shopblocks-wp' ); ?>
+		<?php else : ?>
+			<?php esc_html_e( 'Supports WordPress shortcodes and safe HTML embeds. Blog-specific content overrides the global default.', 'shopblocks-wp' ); ?>
+		<?php endif; ?>
+	</p>
+	<p><label><strong><?php esc_html_e( 'Newsletter heading (optional wrapper heading)', 'shopblocks-wp' ); ?></strong><br><input type="text" class="widefat" name="shopblocks_newsletter_title" value="<?php echo esc_attr( $newsletter_title ); ?>"></label></p>
+	<p><label><strong><?php esc_html_e( 'Newsletter supporting text (optional)', 'shopblocks-wp' ); ?></strong><br><textarea class="widefat" rows="2" name="shopblocks_newsletter_description"><?php echo esc_textarea( $newsletter_text ); ?></textarea></label></p>
 	<?php if ( shopblocks_has_woocommerce() ) : ?>
 		<hr><p><strong><?php esc_html_e( 'Commerce module — Sidebar Products', 'shopblocks-wp' ); ?></strong></p>
 		<input type="text" class="widefat" name="shopblocks_sidebar_product_ids" value="<?php echo esc_attr( $product_ids ); ?>" placeholder="123, 456">
@@ -251,6 +261,13 @@ function shopblocks_save_blog_sidebar( $post_id ) {
 	update_post_meta( $post_id, '_shopblocks_show_newsletter', isset( $_POST['shopblocks_show_newsletter'] ) ? '1' : '0' );
 	update_post_meta( $post_id, '_shopblocks_newsletter_title', sanitize_text_field( wp_unslash( $_POST['shopblocks_newsletter_title'] ?? '' ) ) );
 	update_post_meta( $post_id, '_shopblocks_newsletter_description', sanitize_textarea_field( wp_unslash( $_POST['shopblocks_newsletter_description'] ?? '' ) ) );
+	$submitted_newsletter = shopblocks_sanitize_embed_content( $_POST['shopblocks_newsletter_embed'] ?? '' );
+	$default_newsletter   = shopblocks_sanitize_embed_content( shopblocks_get_blog_newsletter_embed() );
+	if ( '' === trim( $submitted_newsletter ) || trim( $submitted_newsletter ) === trim( $default_newsletter ) ) {
+		delete_post_meta( $post_id, '_shopblocks_newsletter_embed' );
+	} else {
+		update_post_meta( $post_id, '_shopblocks_newsletter_embed', $submitted_newsletter );
+	}
 	$submitted_products = shopblocks_sanitize_id_list( $_POST['shopblocks_sidebar_product_ids'] ?? '' );
 	$default_products   = shopblocks_sanitize_id_list( get_option( 'shopblocks_default_blog_sidebar_products', '' ) );
 	$disable_products   = isset( $_POST['shopblocks_disable_sidebar_products'] ) ? '1' : '0';

@@ -2,6 +2,14 @@
 
 ShopBlocks provides structured Blogs, landing Articles, shoppable Collections, reusable Block Editor patterns, optional WooCommerce commerce components, and built-in structured data. Native WordPress Posts remain untouched unless an administrator explicitly runs the Posts → ShopBlocks Blogs migration tool.
 
+## 2.2.1 — Global Blog Newsletter / Signup Embeds
+
+- Added a global Blog newsletter/signup embed setting supporting WordPress shortcodes and safe HTML.
+- Added per-Blog newsletter/signup overrides with global fallback behavior.
+- Preserved the existing newsletter visibility toggle for per-Blog opt-out.
+- Newsletter/signup modules render before sidebar products.
+- Kept the original shortcode-only option as a backward-compatible fallback for upgrades from 2.2.0 and earlier.
+
 ## 2.2.0 — Integrated Schema + Collection Migration
 
 - Added global Default Blog Sidebar Product IDs with per-Blog override/disable behavior.

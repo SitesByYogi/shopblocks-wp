@@ -2,7 +2,7 @@
 /**
  * Plugin Name: ShopBlocks WP
  * Description: Structured WordPress Blogs, landing Articles, shoppable Collections, integrated schema output, and optional WooCommerce integrations.
- * Version: 2.2.0
+ * Version: 2.2.1
  * Author: SitesByYogi
  * Text Domain: shopblocks-wp
  * Requires at least: 6.3
@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SHOPBLOCKS_PLUGIN_VERSION', '2.2.0' );
+define( 'SHOPBLOCKS_PLUGIN_VERSION', '2.2.1' );
 define( 'SHOPBLOCKS_PLUGIN_FILE', __FILE__ );
 define( 'SHOPBLOCKS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SHOPBLOCKS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -49,6 +49,56 @@ function shopblocks_has_woocommerce() {
 	return class_exists( 'WooCommerce' ) && function_exists( 'wc_get_product' );
 }
 
+
+/**
+ * Sanitize newsletter/signup embed content.
+ *
+ * Supports WordPress shortcodes and safe post HTML such as Klaviyo's
+ * <div class="klaviyo-form-XXXX"></div> embed placeholder. Script tags are
+ * intentionally not accepted; provider JavaScript should be loaded normally
+ * by the provider/plugin/theme.
+ */
+function shopblocks_sanitize_embed_content( $value ) {
+	return wp_kses_post( wp_unslash( (string) $value ) );
+}
+
+/**
+ * Render shortcode and/or safe HTML embed content.
+ */
+function shopblocks_render_embed_content( $content ) {
+	$content = trim( (string) $content );
+	if ( '' === $content ) {
+		return '';
+	}
+
+	return do_shortcode( wp_kses_post( $content ) );
+}
+
+/**
+ * Resolve the effective Blog newsletter/signup embed.
+ *
+ * Blog-specific content overrides the global default. The previous
+ * shopblocks_newsletter_shortcode option remains a fallback for upgrades from
+ * ShopBlocks <= 2.2.0.
+ */
+function shopblocks_get_blog_newsletter_embed( $post_id = 0 ) {
+	$post_id = absint( $post_id );
+
+	if ( $post_id ) {
+		$override = trim( (string) get_post_meta( $post_id, '_shopblocks_newsletter_embed', true ) );
+		if ( '' !== $override ) {
+			return $override;
+		}
+	}
+
+	$global = trim( (string) get_option( 'shopblocks_default_blog_newsletter_embed', '' ) );
+	if ( '' !== $global ) {
+		return $global;
+	}
+
+	// Backward compatibility with the original shortcode-only setting.
+	return trim( (string) get_option( 'shopblocks_newsletter_shortcode', '' ) );
+}
 
 /**
  * Resolve the effective sidebar product IDs for a Blog.
@@ -599,8 +649,8 @@ function shopblocks_newsletter_shortcode( $atts ) {
 		'shopblocks_newsletter'
 	);
 
-	$provider_shortcode = trim( (string) get_option( 'shopblocks_newsletter_shortcode', '' ) );
-	if ( '' === $provider_shortcode ) {
+	$provider_embed = shopblocks_get_blog_newsletter_embed();
+	if ( '' === trim( (string) $provider_embed ) ) {
 		return '';
 	}
 
@@ -610,7 +660,7 @@ function shopblocks_newsletter_shortcode( $atts ) {
 		<h2 class="shopblocks-newsletter__title"><?php echo esc_html( $atts['title'] ); ?></h2>
 		<?php if ( $atts['description'] ) : ?><p class="shopblocks-newsletter__description"><?php echo esc_html( $atts['description'] ); ?></p><?php endif; ?>
 		<div class="shopblocks-newsletter__form">
-			<?php echo do_shortcode( $provider_shortcode ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			<?php echo shopblocks_render_embed_content( $provider_embed ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 		</div>
 	</aside>
 	<?php
