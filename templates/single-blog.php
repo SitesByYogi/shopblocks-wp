@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 shopblocks_render_theme_header();
 while ( have_posts() ) : the_post();
 	$post_id             = get_the_ID();
-	$product_ids         = get_post_meta( $post_id, '_shopblocks_sidebar_product_ids', true );
+	$product_ids         = shopblocks_get_blog_sidebar_product_ids( $post_id );
 	$helpful             = get_post_meta( $post_id, '_shopblocks_helpful_links', true );
 	$helpful_heading     = get_post_meta( $post_id, '_shopblocks_helpful_links_heading', true );
 	$newsletter          = get_post_meta( $post_id, '_shopblocks_show_newsletter', true );

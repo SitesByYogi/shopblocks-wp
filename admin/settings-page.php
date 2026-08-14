@@ -52,14 +52,16 @@ function shopblocks_settings_page() {
 			<p><code>[shopblocks_products ids="1,2" columns="1" layout="sidebar"]</code></p>
 			<p><code>[shopblocks_newsletter]</code></p>
 			<p class="description"><?php esc_html_e( 'The legacy [add_products] shortcode remains supported.', 'shopblocks-wp' ); ?></p>
+			<h2><?php esc_html_e( 'Integrated Structured Data', 'shopblocks-wp' ); ?></h2>
+			<p><?php esc_html_e( 'ShopBlocks 2.2 includes the former Schema Rich Snippets collection schema engine. The optional Legacy Migration screen is only needed for early prototype sites that stored Collections under the old plural `collections` post type.', 'shopblocks-wp' ); ?></p>
 		<?php elseif ( 'general' === $tab ) : ?>
 			<form method="post" action="options.php">
-				<?php settings_fields( 'shopblocks_settings' ); do_settings_sections( 'shopblocks-settings' ); submit_button(); ?>
+				<?php settings_fields( 'shopblocks_general_settings' ); do_settings_sections( 'shopblocks-settings' ); submit_button(); ?>
 			</form>
 		<?php else : ?>
-			<p><?php esc_html_e( 'ShopBlocks inherits the active theme by default. Use layout tokens and the scoped CSS fields for Figma-specific template styling without changing the rest of the site.', 'shopblocks-wp' ); ?></p>
+			<p><?php esc_html_e( 'ShopBlocks ships with safe template defaults and still inherits the active theme typography where possible. Design values are saved independently from General Settings so changing a CTA color can never clear layout or style tokens.', 'shopblocks-wp' ); ?></p>
 			<form method="post" action="options.php">
-				<?php settings_fields( 'shopblocks_settings' ); do_settings_sections( 'shopblocks-design' ); submit_button(); ?>
+				<?php settings_fields( 'shopblocks_design_settings' ); do_settings_sections( 'shopblocks-design' ); submit_button(); ?>
 			</form>
 		<?php endif; ?>
 	</div>
@@ -84,30 +86,32 @@ function shopblocks_sanitize_css_token( $value ) {
 }
 
 function shopblocks_register_settings() {
-	register_setting( 'shopblocks_settings', 'shopblocks_default_limit', array( 'type' => 'integer', 'sanitize_callback' => 'shopblocks_sanitize_limit', 'default' => 4 ) );
-	register_setting( 'shopblocks_settings', 'shopblocks_enable_styles', array( 'type' => 'boolean', 'sanitize_callback' => 'shopblocks_sanitize_checkbox', 'default' => 1 ) );
-	register_setting( 'shopblocks_settings', 'shopblocks_newsletter_shortcode', array( 'sanitize_callback' => 'sanitize_text_field', 'default' => '' ) );
-	register_setting( 'shopblocks_settings', 'shopblocks_lead_form_shortcode', array( 'sanitize_callback' => 'sanitize_text_field', 'default' => '' ) );
+	register_setting( 'shopblocks_general_settings', 'shopblocks_default_limit', array( 'type' => 'integer', 'sanitize_callback' => 'shopblocks_sanitize_limit', 'default' => 4 ) );
+	register_setting( 'shopblocks_general_settings', 'shopblocks_enable_styles', array( 'type' => 'boolean', 'sanitize_callback' => 'shopblocks_sanitize_checkbox', 'default' => 1 ) );
+	register_setting( 'shopblocks_general_settings', 'shopblocks_enable_schema', array( 'type' => 'boolean', 'sanitize_callback' => 'shopblocks_sanitize_checkbox', 'default' => 1 ) );
+	register_setting( 'shopblocks_general_settings', 'shopblocks_newsletter_shortcode', array( 'sanitize_callback' => 'sanitize_text_field', 'default' => '' ) );
+	register_setting( 'shopblocks_general_settings', 'shopblocks_lead_form_shortcode', array( 'sanitize_callback' => 'sanitize_text_field', 'default' => '' ) );
+	register_setting( 'shopblocks_general_settings', 'shopblocks_default_blog_sidebar_products', array( 'sanitize_callback' => 'shopblocks_sanitize_id_list', 'default' => '' ) );
 
-	register_setting( 'shopblocks_settings', 'shopblocks_custom_css', array( 'type' => 'string', 'sanitize_callback' => 'shopblocks_sanitize_css', 'default' => '' ) );
-	register_setting( 'shopblocks_settings', 'shopblocks_blog_css', array( 'type' => 'string', 'sanitize_callback' => 'shopblocks_sanitize_css', 'default' => '' ) );
-	register_setting( 'shopblocks_settings', 'shopblocks_article_css', array( 'type' => 'string', 'sanitize_callback' => 'shopblocks_sanitize_css', 'default' => '' ) );
-	register_setting( 'shopblocks_settings', 'shopblocks_collection_css', array( 'type' => 'string', 'sanitize_callback' => 'shopblocks_sanitize_css', 'default' => '' ) );
+	register_setting( 'shopblocks_design_settings', 'shopblocks_custom_css', array( 'type' => 'string', 'sanitize_callback' => 'shopblocks_sanitize_css', 'default' => '' ) );
+	register_setting( 'shopblocks_design_settings', 'shopblocks_blog_css', array( 'type' => 'string', 'sanitize_callback' => 'shopblocks_sanitize_css', 'default' => '' ) );
+	register_setting( 'shopblocks_design_settings', 'shopblocks_article_css', array( 'type' => 'string', 'sanitize_callback' => 'shopblocks_sanitize_css', 'default' => '' ) );
+	register_setting( 'shopblocks_design_settings', 'shopblocks_collection_css', array( 'type' => 'string', 'sanitize_callback' => 'shopblocks_sanitize_css', 'default' => '' ) );
 	add_settings_section( 'shopblocks_main_section', __( 'General Options', 'shopblocks-wp' ), '__return_false', 'shopblocks-settings' );
 	add_settings_field( 'shopblocks_default_limit', __( 'Default Product Limit', 'shopblocks-wp' ), 'shopblocks_default_limit_callback', 'shopblocks-settings', 'shopblocks_main_section' );
 	add_settings_field( 'shopblocks_enable_styles', __( 'Enable Plugin Styling', 'shopblocks-wp' ), 'shopblocks_enable_styles_callback', 'shopblocks-settings', 'shopblocks_main_section' );
+	add_settings_field( 'shopblocks_enable_schema', __( 'Enable Structured Data', 'shopblocks-wp' ), 'shopblocks_enable_schema_callback', 'shopblocks-settings', 'shopblocks_main_section' );
 	add_settings_field( 'shopblocks_newsletter_shortcode', __( 'Newsletter Form Shortcode', 'shopblocks-wp' ), 'shopblocks_newsletter_shortcode_callback', 'shopblocks-settings', 'shopblocks_main_section' );
 	add_settings_field( 'shopblocks_lead_form_shortcode', __( 'Default Lead Form / Booking Shortcode', 'shopblocks-wp' ), 'shopblocks_lead_form_shortcode_callback', 'shopblocks-settings', 'shopblocks_main_section' );
-	add_settings_field( 'shopblocks_custom_css', __( 'Shared Template CSS', 'shopblocks-wp' ), 'shopblocks_custom_css_callback', 'shopblocks-settings', 'shopblocks_main_section' );
-	add_settings_field( 'shopblocks_blog_css', __( 'Blog Template CSS', 'shopblocks-wp' ), 'shopblocks_blog_css_callback', 'shopblocks-settings', 'shopblocks_main_section' );
-	add_settings_field( 'shopblocks_article_css', __( 'Article Template CSS', 'shopblocks-wp' ), 'shopblocks_article_css_callback', 'shopblocks-settings', 'shopblocks_main_section' );
-	add_settings_field( 'shopblocks_collection_css', __( 'Collection Template CSS', 'shopblocks-wp' ), 'shopblocks_collection_css_callback', 'shopblocks-settings', 'shopblocks_main_section' );
+	add_settings_field( 'shopblocks_default_blog_sidebar_products', __( 'Default Blog Sidebar Product IDs', 'shopblocks-wp' ), 'shopblocks_default_blog_sidebar_products_callback', 'shopblocks-settings', 'shopblocks_main_section' );
 
 
 	$design_options = array(
 		'shopblocks_font_heading'  => array( __( 'Heading Font Stack', 'shopblocks-wp' ), 'inherit' ),
 		'shopblocks_font_body'     => array( __( 'Body Font Stack', 'shopblocks-wp' ), 'inherit' ),
 		'shopblocks_color_primary' => array( __( 'Primary Color', 'shopblocks-wp' ), '#1ea5e8', 'color' ),
+		'shopblocks_color_button_text' => array( __( 'Button Text Color', 'shopblocks-wp' ), '#ffffff', 'color' ),
+		'shopblocks_color_background' => array( __( 'Template Background', 'shopblocks-wp' ), '#ffffff', 'color' ),
 		'shopblocks_color_text'    => array( __( 'Text Color', 'shopblocks-wp' ), '#1f2933', 'color' ),
 		'shopblocks_color_muted'   => array( __( 'Muted Text Color', 'shopblocks-wp' ), '#6b7280', 'color' ),
 		'shopblocks_color_surface' => array( __( 'Surface Color', 'shopblocks-wp' ), '#ffffff', 'color' ),
@@ -125,7 +129,7 @@ function shopblocks_register_settings() {
 	add_settings_section( 'shopblocks_design_section', __( 'Design Tokens', 'shopblocks-wp' ), '__return_false', 'shopblocks-design' );
 	foreach ( $design_options as $option => $config ) {
 		$is_color = isset( $config[2] ) && 'color' === $config[2];
-		register_setting( 'shopblocks_settings', $option, array( 'sanitize_callback' => $is_color ? 'shopblocks_sanitize_color' : 'shopblocks_sanitize_css_token', 'default' => $config[1] ) );
+		register_setting( 'shopblocks_design_settings', $option, array( 'sanitize_callback' => $is_color ? 'shopblocks_sanitize_color' : 'shopblocks_sanitize_css_token', 'default' => $config[1] ) );
 		add_settings_field( $option, $config[0], 'shopblocks_design_token_callback', 'shopblocks-design', 'shopblocks_design_section', array( 'option' => $option, 'default' => $config[1], 'type' => $is_color ? 'color' : 'text' ) );
 	}
 	add_settings_field( 'shopblocks_custom_css_design', __( 'Shared Template CSS', 'shopblocks-wp' ), 'shopblocks_custom_css_callback', 'shopblocks-design', 'shopblocks_design_section' );
@@ -137,14 +141,20 @@ add_action( 'admin_init', 'shopblocks_register_settings' );
 
 function shopblocks_default_limit_callback() { printf( '<input type="number" name="shopblocks_default_limit" value="%d" min="1" max="48">', absint( get_option( 'shopblocks_default_limit', 4 ) ) ); }
 function shopblocks_enable_styles_callback() { printf( '<label><input type="checkbox" name="shopblocks_enable_styles" value="1" %s> %s</label>', checked( 1, get_option( 'shopblocks_enable_styles', 1 ), false ), esc_html__( 'Load the default ShopBlocks stylesheet.', 'shopblocks-wp' ) ); }
+function shopblocks_enable_schema_callback() { printf( '<label><input type="checkbox" name="shopblocks_enable_schema" value="1" %s> %s</label><p class="description">%s</p>', checked( 1, get_option( 'shopblocks_enable_schema', 1 ), false ), esc_html__( 'Output ShopBlocks CollectionPage/Product JSON-LD.', 'shopblocks-wp' ), esc_html__( 'Automatically pauses its own schema output while the legacy Schema Rich Snippets plugin is active to avoid duplicate JSON-LD.', 'shopblocks-wp' ) ); }
 function shopblocks_newsletter_shortcode_callback() { printf( '<input type="text" name="shopblocks_newsletter_shortcode" value="%s" class="regular-text code" placeholder="[klaviyo_form id=&quot;ABC123&quot;]"><p class="description">%s</p>', esc_attr( get_option( 'shopblocks_newsletter_shortcode', '' ) ), esc_html__( 'Optional. Newsletter blocks are omitted completely when this is blank.', 'shopblocks-wp' ) ); }
 function shopblocks_lead_form_shortcode_callback() { printf( '<input type="text" name="shopblocks_lead_form_shortcode" value="%s" class="regular-text code" placeholder="[wpforms id=&quot;123&quot;]"><p class="description">%s</p>', esc_attr( get_option( 'shopblocks_lead_form_shortcode', '' ) ), esc_html__( 'Provider-agnostic fallback for Blog/Article hero and sidebar forms. Per-post shortcodes override this value.', 'shopblocks-wp' ) ); }
+function shopblocks_default_blog_sidebar_products_callback() {
+	printf( '<input type="text" name="shopblocks_default_blog_sidebar_products" value="%s" class="regular-text code" placeholder="9525,448498"><p class="description">%s</p>', esc_attr( get_option( 'shopblocks_default_blog_sidebar_products', '' ) ), esc_html__( 'Default WooCommerce product IDs used by Blogs that do not have a Blog-specific override. Editors can replace these IDs per Blog or disable inherited products on that Blog.', 'shopblocks-wp' ) );
+}
 function shopblocks_design_token_callback( $args ) {
 	$option  = sanitize_key( $args['option'] );
 	$default = isset( $args['default'] ) ? $args['default'] : '';
 	$type    = isset( $args['type'] ) && 'color' === $args['type'] ? 'color' : 'text';
 		$css_var = '--' . str_replace( '_', '-', $option );
-	printf( '<input type="%1$s" name="%2$s" value="%3$s" class="regular-text code"><p class="description"><code>%4$s</code></p>', esc_attr( $type ), esc_attr( $option ), esc_attr( get_option( $option, $default ) ), esc_html( $css_var ) );
+	$value = trim( (string) get_option( $option, $default ) );
+	if ( '' === $value ) { $value = $default; }
+	printf( '<input type="%1$s" name="%2$s" value="%3$s" class="regular-text code"><p class="description"><code>%4$s</code></p>', esc_attr( $type ), esc_attr( $option ), esc_attr( $value ), esc_html( $css_var ) );
 }
 
 function shopblocks_custom_css_callback() {

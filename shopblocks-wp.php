@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: ShopBlocks WP
- * Description: Structured WordPress Blogs, landing Articles, shoppable Collections, lead-generation components, and optional WooCommerce integrations.
- * Version: 2.1.0
+ * Description: Structured WordPress Blogs, landing Articles, shoppable Collections, integrated schema output, and optional WooCommerce integrations.
+ * Version: 2.2.0
  * Author: SitesByYogi
  * Text Domain: shopblocks-wp
  * Requires at least: 6.3
@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SHOPBLOCKS_PLUGIN_VERSION', '2.1.0' );
+define( 'SHOPBLOCKS_PLUGIN_VERSION', '2.2.0' );
 define( 'SHOPBLOCKS_PLUGIN_FILE', __FILE__ );
 define( 'SHOPBLOCKS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SHOPBLOCKS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -47,6 +47,26 @@ add_action( 'before_woocommerce_init', 'shopblocks_declare_woocommerce_compatibi
  */
 function shopblocks_has_woocommerce() {
 	return class_exists( 'WooCommerce' ) && function_exists( 'wc_get_product' );
+}
+
+
+/**
+ * Resolve the effective sidebar product IDs for a Blog.
+ * Blog-specific IDs override the global default. Editors can explicitly
+ * disable inherited products for an individual Blog.
+ */
+function shopblocks_get_blog_sidebar_product_ids( $post_id ) {
+	$post_id = absint( $post_id );
+	if ( ! $post_id || '1' === get_post_meta( $post_id, '_shopblocks_disable_sidebar_products', true ) ) {
+		return '';
+	}
+
+	$override = shopblocks_sanitize_id_list( get_post_meta( $post_id, '_shopblocks_sidebar_product_ids', true ) );
+	if ( $override ) {
+		return $override;
+	}
+
+	return shopblocks_sanitize_id_list( get_option( 'shopblocks_default_blog_sidebar_products', '' ) );
 }
 
 /**
@@ -136,6 +156,10 @@ add_action( 'init', 'shopblocks_register_patterns', 20 );
  */
 function shopblocks_template_include( $template ) {
 	if ( is_singular( 'collection' ) ) {
+		$post_id = get_queried_object_id();
+		if ( function_exists( 'shopblocks_is_legacy_collection_compat' ) && shopblocks_is_legacy_collection_compat( $post_id ) ) {
+			return $template;
+		}
 		$theme_template = locate_template( 'shopblocks/single-collection.php' );
 		return $theme_template ? $theme_template : SHOPBLOCKS_PLUGIN_DIR . 'templates/single-collection.php';
 	}
@@ -275,51 +299,64 @@ add_action( 'save_post_collection', 'shopblocks_save_collection_products' );
  * Front-end styles and custom CSS.
  */
 function shopblocks_get_design_tokens_css() {
-	$tokens = array(
-		'--shopblocks-font-heading'   => get_option( 'shopblocks_font_heading', 'inherit' ),
-		'--shopblocks-font-body'      => get_option( 'shopblocks_font_body', 'inherit' ),
-		'--shopblocks-color-primary'  => get_option( 'shopblocks_color_primary', '#1ea5e8' ),
-		'--shopblocks-color-text'     => get_option( 'shopblocks_color_text', '#1f2933' ),
-		'--shopblocks-color-muted'    => get_option( 'shopblocks_color_muted', '#6b7280' ),
-		'--shopblocks-color-surface'  => get_option( 'shopblocks_color_surface', '#ffffff' ),
-		'--shopblocks-color-border'   => get_option( 'shopblocks_color_border', '#d9dde3' ),
-		'--shopblocks-page-width'     => get_option( 'shopblocks_page_width', '1280px' ),
-		'--shopblocks-article-width'  => get_option( 'shopblocks_article_width', '780px' ),
-		'--shopblocks-sidebar-width'  => get_option( 'shopblocks_sidebar_width', '320px' ),
-		'--shopblocks-layout-gap'     => get_option( 'shopblocks_layout_gap', '48px' ),
-		'--shopblocks-radius-small'   => get_option( 'shopblocks_radius_small', '6px' ),
-		'--shopblocks-radius-medium'  => get_option( 'shopblocks_radius_medium', '12px' ),
-		'--shopblocks-radius-large'   => get_option( 'shopblocks_radius_large', '24px' ),
-		'--shopblocks-button-radius'  => get_option( 'shopblocks_button_radius', '6px' ),
-		'--shopblocks-card-shadow'    => get_option( 'shopblocks_card_shadow', 'none' ),
-	);
 	$defaults = array(
-		'--shopblocks-font-heading'  => 'inherit',
-		'--shopblocks-font-body'     => 'inherit',
-		'--shopblocks-color-primary' => '#1ea5e8',
-		'--shopblocks-color-text'    => '#1f2933',
-		'--shopblocks-color-muted'   => '#6b7280',
-		'--shopblocks-color-surface' => '#ffffff',
-		'--shopblocks-color-border'  => '#d9dde3',
-		'--shopblocks-page-width'    => '1280px',
-		'--shopblocks-article-width' => '780px',
-		'--shopblocks-sidebar-width' => '320px',
-		'--shopblocks-layout-gap'    => '48px',
-		'--shopblocks-radius-small'  => '6px',
-		'--shopblocks-radius-medium' => '12px',
-		'--shopblocks-radius-large'  => '24px',
-		'--shopblocks-button-radius' => '6px',
-		'--shopblocks-card-shadow'   => 'none',
+		'--shopblocks-font-heading'       => 'inherit',
+		'--shopblocks-font-body'          => 'inherit',
+		'--shopblocks-color-primary'      => '#1ea5e8',
+		'--shopblocks-color-button-text'  => '#ffffff',
+		'--shopblocks-color-background'   => '#ffffff',
+		'--shopblocks-color-text'         => '#1f2933',
+		'--shopblocks-color-muted'        => '#6b7280',
+		'--shopblocks-color-surface'      => '#ffffff',
+		'--shopblocks-color-border'       => '#d9dde3',
+		'--shopblocks-page-width'         => '1280px',
+		'--shopblocks-article-width'      => '780px',
+		'--shopblocks-sidebar-width'      => '320px',
+		'--shopblocks-layout-gap'         => '48px',
+		'--shopblocks-radius-small'       => '6px',
+		'--shopblocks-radius-medium'      => '12px',
+		'--shopblocks-radius-large'       => '24px',
+		'--shopblocks-button-radius'      => '6px',
+		'--shopblocks-card-shadow'        => 'none',
 	);
+
+	$options = array(
+		'--shopblocks-font-heading'       => 'shopblocks_font_heading',
+		'--shopblocks-font-body'          => 'shopblocks_font_body',
+		'--shopblocks-color-primary'      => 'shopblocks_color_primary',
+		'--shopblocks-color-button-text'  => 'shopblocks_color_button_text',
+		'--shopblocks-color-background'   => 'shopblocks_color_background',
+		'--shopblocks-color-text'         => 'shopblocks_color_text',
+		'--shopblocks-color-muted'        => 'shopblocks_color_muted',
+		'--shopblocks-color-surface'      => 'shopblocks_color_surface',
+		'--shopblocks-color-border'       => 'shopblocks_color_border',
+		'--shopblocks-page-width'         => 'shopblocks_page_width',
+		'--shopblocks-article-width'      => 'shopblocks_article_width',
+		'--shopblocks-sidebar-width'      => 'shopblocks_sidebar_width',
+		'--shopblocks-layout-gap'         => 'shopblocks_layout_gap',
+		'--shopblocks-radius-small'       => 'shopblocks_radius_small',
+		'--shopblocks-radius-medium'      => 'shopblocks_radius_medium',
+		'--shopblocks-radius-large'       => 'shopblocks_radius_large',
+		'--shopblocks-button-radius'      => 'shopblocks_button_radius',
+		'--shopblocks-card-shadow'        => 'shopblocks_card_shadow',
+	);
+
 	$declarations = array();
-	foreach ( $tokens as $name => $value ) {
-		$value = trim( (string) $value );
+	foreach ( $options as $css_name => $option_name ) {
+		$value = trim( (string) get_option( $option_name, $defaults[ $css_name ] ) );
 		if ( '' === $value ) {
-			$value = $defaults[ $name ];
+			$value = $defaults[ $css_name ];
 		}
-		$declarations[] = $name . ':' . $value;
+		$declarations[] = $css_name . ':' . $value;
 	}
-	return ':root{' . implode( ';', $declarations ) . '}';
+
+	/*
+	 * Declare the resolved values both globally (for standalone shortcodes and
+	 * legacy templates) and directly on ShopBlocks shells. This prevents empty
+	 * or stale theme variables from winning the cascade on template pages.
+	 */
+	$selector = ':root,.shopblocks-blog,.shopblocks-article,.shopblocks-collection,.shopblocks-product-hero,.shopblocks-product-grid';
+	return $selector . '{' . implode( ';', $declarations ) . '}';
 }
 
 function shopblocks_enqueue_assets() {
@@ -596,6 +633,8 @@ function shopblocks_bootstrap() {
 add_action( 'plugins_loaded', 'shopblocks_bootstrap', 20 );
 
 require_once SHOPBLOCKS_PLUGIN_DIR . 'includes/content-types.php';
+require_once SHOPBLOCKS_PLUGIN_DIR . 'includes/legacy/legacy-compat.php';
+require_once SHOPBLOCKS_PLUGIN_DIR . 'includes/schema/class-shopblocks-schema.php';
 require_once SHOPBLOCKS_PLUGIN_DIR . 'admin/settings-page.php';
 
 register_activation_hook( __FILE__, function () {
@@ -603,6 +642,8 @@ register_activation_hook( __FILE__, function () {
 	shopblocks_register_blogs_cpt();
 	add_option( 'shopblocks_default_limit', 4 );
 	add_option( 'shopblocks_enable_styles', 1 );
+	add_option( 'shopblocks_default_blog_sidebar_products', '' );
+	add_option( 'shopblocks_enable_schema', 1 );
 	flush_rewrite_rules();
 } );
 register_deactivation_hook( __FILE__, 'flush_rewrite_rules' );
