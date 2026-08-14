@@ -53,7 +53,7 @@ function shopblocks_settings_page() {
 			<p><code>[shopblocks_newsletter]</code></p>
 			<p class="description"><?php esc_html_e( 'The legacy [add_products] shortcode remains supported.', 'shopblocks-wp' ); ?></p>
 			<h2><?php esc_html_e( 'Integrated Structured Data', 'shopblocks-wp' ); ?></h2>
-			<p><?php esc_html_e( 'ShopBlocks 2.2 includes the former Schema Rich Snippets collection schema engine. The optional Legacy Migration screen is only needed for early prototype sites that stored Collections under the old plural `collections` post type.', 'shopblocks-wp' ); ?></p>
+			<p><?php esc_html_e( 'ShopBlocks includes integrated CollectionPage and Product structured data. Schema output can be disabled in General Settings when another SEO or schema system owns that markup.', 'shopblocks-wp' ); ?></p>
 		<?php elseif ( 'general' === $tab ) : ?>
 			<form method="post" action="options.php">
 				<?php settings_fields( 'shopblocks_general_settings' ); do_settings_sections( 'shopblocks-settings' ); submit_button(); ?>
