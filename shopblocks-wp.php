@@ -2,7 +2,7 @@
 /**
  * Plugin Name: ShopBlocks WP
  * Description: Structured WordPress Blogs, landing Articles, shoppable Collections, integrated schema output, and optional WooCommerce integrations.
- * Version: 2.2.2
+ * Version: 2.2.3
  * Author: SitesByYogi
  * Text Domain: shopblocks-wp
  * Requires at least: 6.3
@@ -19,12 +19,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SHOPBLOCKS_PLUGIN_VERSION', '2.2.2' );
+define( 'SHOPBLOCKS_PLUGIN_VERSION', '2.2.3' );
 define( 'SHOPBLOCKS_PLUGIN_FILE', __FILE__ );
 define( 'SHOPBLOCKS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SHOPBLOCKS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 require_once SHOPBLOCKS_PLUGIN_DIR . 'includes/class-shopblocks-update-notifier.php';
+require_once SHOPBLOCKS_PLUGIN_DIR . 'includes/permalinks.php';
 
 
 /**
@@ -125,6 +126,7 @@ function shopblocks_get_blog_sidebar_product_ids( $post_id ) {
  * Register Collections independently so content remains accessible if WooCommerce is disabled.
  */
 function shopblocks_register_collections_cpt() {
+	$collection_slug = shopblocks_get_collection_slug();
 	$labels = array(
 		'name'               => __( 'Collections', 'shopblocks-wp' ),
 		'singular_name'      => __( 'Collection', 'shopblocks-wp' ),
@@ -146,8 +148,8 @@ function shopblocks_register_collections_cpt() {
 		array(
 			'labels'             => $labels,
 			'public'             => true,
-			'has_archive'        => true,
-			'rewrite'            => array( 'slug' => 'collections', 'with_front' => false ),
+			'has_archive'        => $collection_slug,
+			'rewrite'            => array( 'slug' => $collection_slug, 'with_front' => false ),
 			'show_in_rest'       => true,
 			'supports'           => array( 'title', 'editor', 'thumbnail', 'excerpt' ),
 			'show_in_menu'       => 'shopblocks-settings',
@@ -693,9 +695,12 @@ register_activation_hook( __FILE__, function () {
 	shopblocks_register_collections_cpt();
 	shopblocks_register_blogs_cpt();
 	add_option( 'shopblocks_default_limit', 4 );
+	add_option( 'shopblocks_blog_slug', 'blogs' );
+	add_option( 'shopblocks_collection_slug', 'collections' );
 	add_option( 'shopblocks_enable_styles', 1 );
 	add_option( 'shopblocks_default_blog_sidebar_products', '' );
 	add_option( 'shopblocks_enable_schema', 1 );
 	flush_rewrite_rules();
+	delete_option( 'shopblocks_flush_rewrite_rules' );
 } );
 register_deactivation_hook( __FILE__, 'flush_rewrite_rules' );

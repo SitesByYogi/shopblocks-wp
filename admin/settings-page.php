@@ -93,6 +93,8 @@ function shopblocks_register_settings() {
 	register_setting( 'shopblocks_general_settings', 'shopblocks_default_blog_newsletter_embed', array( 'type' => 'string', 'sanitize_callback' => 'shopblocks_sanitize_embed_content', 'default' => '' ) );
 	register_setting( 'shopblocks_general_settings', 'shopblocks_lead_form_shortcode', array( 'sanitize_callback' => 'sanitize_text_field', 'default' => '' ) );
 	register_setting( 'shopblocks_general_settings', 'shopblocks_default_blog_sidebar_products', array( 'sanitize_callback' => 'shopblocks_sanitize_id_list', 'default' => '' ) );
+	register_setting( 'shopblocks_general_settings', 'shopblocks_blog_slug', array( 'type' => 'string', 'sanitize_callback' => 'shopblocks_sanitize_blog_slug', 'default' => 'blogs' ) );
+	register_setting( 'shopblocks_general_settings', 'shopblocks_collection_slug', array( 'type' => 'string', 'sanitize_callback' => 'shopblocks_sanitize_collection_slug', 'default' => 'collections' ) );
 
 	register_setting( 'shopblocks_design_settings', 'shopblocks_custom_css', array( 'type' => 'string', 'sanitize_callback' => 'shopblocks_sanitize_css', 'default' => '' ) );
 	register_setting( 'shopblocks_design_settings', 'shopblocks_blog_css', array( 'type' => 'string', 'sanitize_callback' => 'shopblocks_sanitize_css', 'default' => '' ) );
@@ -105,6 +107,10 @@ function shopblocks_register_settings() {
 	add_settings_field( 'shopblocks_default_blog_newsletter_embed', __( 'Default Blog Newsletter / Signup Embed', 'shopblocks-wp' ), 'shopblocks_default_blog_newsletter_embed_callback', 'shopblocks-settings', 'shopblocks_main_section' );
 	add_settings_field( 'shopblocks_lead_form_shortcode', __( 'Default Lead Form / Booking Shortcode', 'shopblocks-wp' ), 'shopblocks_lead_form_shortcode_callback', 'shopblocks-settings', 'shopblocks_main_section' );
 	add_settings_field( 'shopblocks_default_blog_sidebar_products', __( 'Default Blog Sidebar Product IDs', 'shopblocks-wp' ), 'shopblocks_default_blog_sidebar_products_callback', 'shopblocks-settings', 'shopblocks_main_section' );
+
+	add_settings_section( 'shopblocks_permalink_section', __( 'Permalinks / URL Bases', 'shopblocks-wp' ), 'shopblocks_permalink_section_callback', 'shopblocks-settings' );
+	add_settings_field( 'shopblocks_blog_slug', __( 'Blog URL Base', 'shopblocks-wp' ), 'shopblocks_blog_slug_callback', 'shopblocks-settings', 'shopblocks_permalink_section' );
+	add_settings_field( 'shopblocks_collection_slug', __( 'Collection URL Base', 'shopblocks-wp' ), 'shopblocks_collection_slug_callback', 'shopblocks-settings', 'shopblocks_permalink_section' );
 
 
 	$design_options = array(
@@ -158,6 +164,46 @@ function shopblocks_lead_form_shortcode_callback() { printf( '<input type="text"
 function shopblocks_default_blog_sidebar_products_callback() {
 	printf( '<input type="text" name="shopblocks_default_blog_sidebar_products" value="%s" class="regular-text code" placeholder="9525,448498"><p class="description">%s</p>', esc_attr( get_option( 'shopblocks_default_blog_sidebar_products', '' ) ), esc_html__( 'Default WooCommerce product IDs used by Blogs that do not have a Blog-specific override. Editors can replace these IDs per Blog or disable inherited products on that Blog.', 'shopblocks-wp' ) );
 }
+function shopblocks_permalink_section_callback() {
+	printf(
+		'<p>%1$s</p><p><strong>%2$s</strong></p>',
+		esc_html__( 'Change these only when the default ShopBlocks routes conflict with an existing site structure. Existing installations keep /blogs/ and /collections/ unless you explicitly change them.', 'shopblocks-wp' ),
+		esc_html__( 'Changing an established URL base changes public URLs. Add redirects when previous URLs are indexed or linked externally.', 'shopblocks-wp' )
+	);
+}
+
+function shopblocks_render_slug_conflicts( $slug, $own_post_type ) {
+	$conflicts = shopblocks_get_permalink_conflicts( $slug, $own_post_type );
+	if ( empty( $conflicts ) ) {
+		return;
+	}
+	foreach ( $conflicts as $conflict ) {
+		printf( '<p class="description" style="color:#b32d2e"><strong>%1$s</strong> %2$s</p>', esc_html__( 'Potential conflict:', 'shopblocks-wp' ), esc_html( $conflict ) );
+	}
+}
+
+function shopblocks_blog_slug_callback() {
+	$slug = shopblocks_get_blog_slug();
+	printf(
+		'<input type="text" name="shopblocks_blog_slug" value="%1$s" class="regular-text code" placeholder="blogs"><p class="description">%2$s <code>%3$s</code></p>',
+		esc_attr( $slug ),
+		esc_html__( 'Example URL:', 'shopblocks-wp' ),
+		esc_html( home_url( '/' . $slug . '/sample-post/' ) )
+	);
+	shopblocks_render_slug_conflicts( $slug, 'shopblocks_blog' );
+}
+
+function shopblocks_collection_slug_callback() {
+	$slug = shopblocks_get_collection_slug();
+	printf(
+		'<input type="text" name="shopblocks_collection_slug" value="%1$s" class="regular-text code" placeholder="collections"><p class="description">%2$s <code>%3$s</code></p>',
+		esc_attr( $slug ),
+		esc_html__( 'Example URL:', 'shopblocks-wp' ),
+		esc_html( home_url( '/' . $slug . '/sample-collection/' ) )
+	);
+	shopblocks_render_slug_conflicts( $slug, 'collection' );
+}
+
 function shopblocks_design_token_callback( $args ) {
 	$option  = sanitize_key( $args['option'] );
 	$default = isset( $args['default'] ) ? $args['default'] : '';
