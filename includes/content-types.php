@@ -8,6 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /** Register the public Blogs post type without altering native Posts. */
 function shopblocks_register_blogs_cpt() {
+	$blog_slug = shopblocks_get_blog_slug();
 	$labels = array(
 		'name' => __( 'Blogs', 'shopblocks-wp' ), 'singular_name' => __( 'Blog', 'shopblocks-wp' ),
 		'menu_name' => __( 'Blogs', 'shopblocks-wp' ), 'name_admin_bar' => __( 'Blog', 'shopblocks-wp' ),
@@ -18,8 +19,8 @@ function shopblocks_register_blogs_cpt() {
 		'not_found_in_trash' => __( 'No blogs found in Trash.', 'shopblocks-wp' ),
 	);
 	register_post_type( 'shopblocks_blog', array(
-		'labels' => $labels, 'public' => true, 'has_archive' => true,
-		'rewrite' => array( 'slug' => 'blogs', 'with_front' => false ), 'show_in_rest' => true,
+		'labels' => $labels, 'public' => true, 'has_archive' => $blog_slug,
+		'rewrite' => array( 'slug' => $blog_slug, 'with_front' => false ), 'show_in_rest' => true,
 		'show_in_menu' => 'shopblocks-settings',
 		'supports' => array( 'title', 'editor', 'thumbnail', 'excerpt', 'author', 'revisions' ),
 		'taxonomies' => array( 'category', 'post_tag' ), 'menu_icon' => 'dashicons-welcome-write-blog',

@@ -2,6 +2,15 @@
 
 ShopBlocks provides structured Blogs, landing Articles, shoppable Collections, reusable Block Editor patterns, optional WooCommerce commerce components, and built-in structured data. Native WordPress Posts remain untouched unless an administrator explicitly runs the Posts → ShopBlocks Blogs migration tool.
 
+## 2.2.3 — Configurable Content Slugs
+
+- Added configurable Blog and Collection URL bases under ShopBlocks Settings.
+- Existing installations retain the default `/blogs/` and `/collections/` routes until explicitly changed.
+- Added duplicate Blog/Collection slug protection.
+- Added warnings when a selected URL base appears to conflict with an existing Page or registered post type.
+- Rewrite rules now flush once after a ShopBlocks slug changes instead of on normal requests.
+- Added live example URLs in Settings to make routing changes easier to review before deployment.
+
 ## 2.2.2 — Notification-Only GitHub Updates
 
 - Added native WordPress update notifications based on the latest published GitHub Release.
