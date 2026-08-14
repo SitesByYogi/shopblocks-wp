@@ -2,6 +2,15 @@
 
 ShopBlocks provides structured Blogs, landing Articles, shoppable Collections, reusable Block Editor patterns, optional WooCommerce commerce components, and built-in structured data. Native WordPress Posts remain untouched unless an administrator explicitly runs the Posts → ShopBlocks Blogs migration tool.
 
+## 2.2.2 — Notification-Only GitHub Updates
+
+- Added native WordPress update notifications based on the latest published GitHub Release.
+- ShopBlocks now surfaces a normal Plugins-dashboard update notice when a newer release exists.
+- Update checks are notification-only; no package URL is supplied and WordPress will not install the release automatically.
+- Added a six-hour GitHub release cache to reduce unnecessary API requests.
+- Added a manual **Check for updates** action on the Plugins screen for administrators.
+- Draft and prerelease GitHub releases are ignored.
+
 ## 2.2.1 — Global Blog Newsletter / Signup Embeds
 
 - Added a global Blog newsletter/signup embed setting supporting WordPress shortcodes and safe HTML.
