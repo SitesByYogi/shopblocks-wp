@@ -2,7 +2,7 @@
 /**
  * Plugin Name: ShopBlocks WP
  * Description: Structured WordPress Blogs, landing Articles, shoppable Collections, integrated schema output, and optional WooCommerce integrations.
- * Version: 2.2.3
+ * Version: 2.2.4
  * Author: SitesByYogi
  * Text Domain: shopblocks-wp
  * Requires at least: 6.3
@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SHOPBLOCKS_PLUGIN_VERSION', '2.2.3' );
+define( 'SHOPBLOCKS_PLUGIN_VERSION', '2.2.4' );
 define( 'SHOPBLOCKS_PLUGIN_FILE', __FILE__ );
 define( 'SHOPBLOCKS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SHOPBLOCKS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
