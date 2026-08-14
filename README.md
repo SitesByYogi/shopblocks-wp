@@ -1,6 +1,17 @@
 # ShopBlocks WP
 
-ShopBlocks provides structured Blogs, landing Articles, shoppable Collections, reusable Block Editor patterns, optional WooCommerce commerce components, and built-in structured data. Native WordPress Posts remain untouched unless an administrator explicitly runs the Posts → ShopBlocks Blogs migration tool.
+ShopBlocks provides structured Blogs, landing Articles, shoppable Collections, reusable Block Editor patterns, optional WooCommerce commerce components, and built-in structured data.
+
+## 2.2.5 — Migration Tool Cleanup
+
+- Removed the ShopBlocks Migration admin screen from new and upgraded installations.
+- Removed one-time WordPress Post → ShopBlocks Blog conversion actions, batch handlers, collision counters, rollback controls, and migration-only AJAX endpoints.
+- Removed the legacy plural `collections` conversion action and its admin controls.
+- Retained runtime compatibility for content migrated by earlier ShopBlocks versions.
+- Retained Legacy Template Compatibility for previously migrated Collections so existing theme/Elementor rendering is not disrupted.
+- Retained ShopBlocks Blog author-archive and feed compatibility.
+- Removed obsolete migration instructions and hardcoded `/blogs/` migration guidance from current documentation.
+- No database migration is required and existing migrated content is not modified.
 
 ## 2.2.4 — Native WordPress Updates
 
@@ -76,34 +87,6 @@ ShopBlocks provides structured Blogs, landing Articles, shoppable Collections, r
 - Newsletter markup is omitted completely when no newsletter shortcode is configured.
 - Added Lead Generation Article block pattern.
 
-
-## Migrating from Schema Rich Snippets
-
-For sites using the older **Schema Rich Snippets** plugin:
-
-1. Install and activate ShopBlocks 2.2 while Schema Rich Snippets is still active.
-2. Open **ShopBlocks → Legacy Migration**.
-3. If legacy plural `collections` records are detected, run **Migrate Legacy Collections**. The migration preserves post IDs, slugs, content, metadata, featured images, and dates.
-4. Migrated Collections stay on their original theme/Elementor single template by default through **Legacy Template Compatibility**, preventing an immediate visual template switch.
-5. Verify legacy `[shoppable_product_top]` and `[add_products]` content on staging.
-6. Deactivate Schema Rich Snippets. ShopBlocks then takes over CollectionPage/Product JSON-LD automatically.
-
-ShopBlocks suppresses its own schema output while Schema Rich Snippets is active to avoid duplicate JSON-LD during the migration window.
-
-
-## Migrating native WordPress Posts into ShopBlocks Blogs
-
-For a site whose existing editorial posts already used `/blogs/%postname%/` and should now be owned by ShopBlocks:
-
-1. Back up the database or create a staging snapshot.
-2. Set **Settings → Permalinks** to `/%postname%/`. ShopBlocks itself owns the `/blogs/` rewrite base.
-3. Open **ShopBlocks → Migration** and review the counts and slug-collision warning.
-4. Start with **Migrate Published Posts** on staging or a small production test window. Migration runs in batches of 25 to avoid PHP timeouts.
-5. Verify several `/blogs/slug/` URLs, featured images, authors/dates, categories/tags, SEO metadata, article content, sidebar rendering, search/archive behavior, and XML sitemaps.
-6. Run **Migrate All Editorial Posts** after verification if drafts, scheduled, pending, and private posts should also move.
-7. A rollback control is available only for records marked as migrated by ShopBlocks. Rollback URLs follow the site's current native Post permalink structure.
-
-Slug collisions with an existing ShopBlocks Blog are skipped instead of overwritten.
 
 ## Content types
 
