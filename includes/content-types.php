@@ -95,7 +95,10 @@ function shopblocks_conversion_meta_box( $post ) {
 }
 
 function shopblocks_blog_sidebar_meta_box( $post ) {
-	$product_ids       = get_post_meta( $post->ID, '_shopblocks_sidebar_product_ids', true );
+	$stored_product_ids = get_post_meta( $post->ID, '_shopblocks_sidebar_product_ids', true );
+	$default_product_ids = get_option( 'shopblocks_default_blog_sidebar_products', '' );
+	$disable_products   = '1' === get_post_meta( $post->ID, '_shopblocks_disable_sidebar_products', true );
+	$product_ids        = $stored_product_ids ?: $default_product_ids;
 	$helpful           = get_post_meta( $post->ID, '_shopblocks_helpful_links', true );
 	$helpful_heading   = get_post_meta( $post->ID, '_shopblocks_helpful_links_heading', true );
 	$newsletter        = get_post_meta( $post->ID, '_shopblocks_show_newsletter', true );
@@ -129,9 +132,16 @@ function shopblocks_blog_sidebar_meta_box( $post ) {
 	<?php if ( shopblocks_has_woocommerce() ) : ?>
 		<hr><p><strong><?php esc_html_e( 'Commerce module — Sidebar Products', 'shopblocks-wp' ); ?></strong></p>
 		<input type="text" class="widefat" name="shopblocks_sidebar_product_ids" value="<?php echo esc_attr( $product_ids ); ?>" placeholder="123, 456">
-		<p class="description"><?php esc_html_e( 'Optional WooCommerce product IDs in display order.', 'shopblocks-wp' ); ?></p>
+		<p class="description">
+			<?php if ( ! $stored_product_ids && $default_product_ids ) : ?>
+				<?php esc_html_e( 'Using the global ShopBlocks default. Change these IDs to create a Blog-specific override.', 'shopblocks-wp' ); ?>
+			<?php else : ?>
+				<?php esc_html_e( 'Optional WooCommerce product IDs in display order. Blog-specific values override the global default.', 'shopblocks-wp' ); ?>
+			<?php endif; ?>
+		</p>
+		<p><label><input type="checkbox" name="shopblocks_disable_sidebar_products" value="1" <?php checked( $disable_products ); ?>> <?php esc_html_e( 'Disable sidebar products for this Blog', 'shopblocks-wp' ); ?></label></p>
 	<?php else : ?>
-		<input type="hidden" name="shopblocks_sidebar_product_ids" value="<?php echo esc_attr( $product_ids ); ?>">
+		<input type="hidden" name="shopblocks_sidebar_product_ids" value="<?php echo esc_attr( $stored_product_ids ); ?>">
 		<p class="description"><?php esc_html_e( 'WooCommerce is not active. Product modules are disabled; Blog, Article, CTA, form, FAQ, and link features remain available.', 'shopblocks-wp' ); ?></p>
 	<?php endif; ?>
 	<hr>
@@ -241,7 +251,15 @@ function shopblocks_save_blog_sidebar( $post_id ) {
 	update_post_meta( $post_id, '_shopblocks_show_newsletter', isset( $_POST['shopblocks_show_newsletter'] ) ? '1' : '0' );
 	update_post_meta( $post_id, '_shopblocks_newsletter_title', sanitize_text_field( wp_unslash( $_POST['shopblocks_newsletter_title'] ?? '' ) ) );
 	update_post_meta( $post_id, '_shopblocks_newsletter_description', sanitize_textarea_field( wp_unslash( $_POST['shopblocks_newsletter_description'] ?? '' ) ) );
-	update_post_meta( $post_id, '_shopblocks_sidebar_product_ids', shopblocks_sanitize_id_list( $_POST['shopblocks_sidebar_product_ids'] ?? '' ) );
+	$submitted_products = shopblocks_sanitize_id_list( $_POST['shopblocks_sidebar_product_ids'] ?? '' );
+	$default_products   = shopblocks_sanitize_id_list( get_option( 'shopblocks_default_blog_sidebar_products', '' ) );
+	$disable_products   = isset( $_POST['shopblocks_disable_sidebar_products'] ) ? '1' : '0';
+	update_post_meta( $post_id, '_shopblocks_disable_sidebar_products', $disable_products );
+	if ( '1' === $disable_products || '' === $submitted_products || $submitted_products === $default_products ) {
+		delete_post_meta( $post_id, '_shopblocks_sidebar_product_ids' );
+	} else {
+		update_post_meta( $post_id, '_shopblocks_sidebar_product_ids', $submitted_products );
+	}
 	update_post_meta( $post_id, '_shopblocks_helpful_links_heading', sanitize_text_field( wp_unslash( $_POST['shopblocks_helpful_links_heading'] ?? '' ) ) );
 	update_post_meta( $post_id, '_shopblocks_helpful_links', sanitize_textarea_field( wp_unslash( $_POST['shopblocks_helpful_links'] ?? '' ) ) );
 	update_post_meta( $post_id, '_shopblocks_sidebar_custom_content', wp_kses_post( wp_unslash( $_POST['shopblocks_sidebar_custom_content'] ?? '' ) ) );
