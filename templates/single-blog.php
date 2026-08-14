@@ -10,6 +10,7 @@ while ( have_posts() ) : the_post();
 	$newsletter          = '' === $newsletter ? '1' : $newsletter;
 	$newsletter_title    = get_post_meta( $post_id, '_shopblocks_newsletter_title', true );
 	$newsletter_text     = get_post_meta( $post_id, '_shopblocks_newsletter_description', true );
+	$newsletter_embed    = shopblocks_get_blog_newsletter_embed( $post_id );
 	$custom_content      = get_post_meta( $post_id, '_shopblocks_sidebar_custom_content', true );
 	$faqs                = get_post_meta( $post_id, '_shopblocks_blog_faqs', true );
 	$faq_heading         = get_post_meta( $post_id, '_shopblocks_blog_faq_heading', true );
@@ -24,7 +25,7 @@ while ( have_posts() ) : the_post();
 	$sidebar_form_heading = get_post_meta( $post_id, '_shopblocks_sidebar_form_heading', true );
 	$sidebar_form_shortcode = shopblocks_get_lead_form_shortcode( $post_id, '_shopblocks_sidebar_form_shortcode' );
 	$has_sidebar = (
-		( '1' === $newsletter && trim( (string) get_option( 'shopblocks_newsletter_shortcode', '' ) ) ) ||
+		( '1' === $newsletter && trim( (string) $newsletter_embed ) ) ||
 		( shopblocks_has_woocommerce() && trim( (string) $product_ids ) ) ||
 		trim( (string) $helpful ) || trim( (string) $custom_content ) ||
 		trim( (string) shopblocks_render_sidebar_cta( $post_id ) ) ||
@@ -70,8 +71,12 @@ while ( have_posts() ) : the_post();
 			<aside class="shopblocks-blog__sidebar" aria-label="<?php esc_attr_e( 'Blog sidebar', 'shopblocks-wp' ); ?>">
 				<?php $cta = shopblocks_render_sidebar_cta( $post_id ); if ( $cta ) : ?><section class="shopblocks-sidebar-block shopblocks-sidebar-block--cta"><?php echo $cta; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></section><?php endif; ?>
 				<?php if ( $sidebar_form_shortcode ) : ?><section class="shopblocks-sidebar-block shopblocks-sidebar-block--form"><?php echo shopblocks_render_lead_form( $post_id, '_shopblocks_sidebar_form_shortcode', $sidebar_form_heading ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></section><?php endif; ?>
-				<?php if ( '1' === $newsletter && trim( (string) get_option( 'shopblocks_newsletter_shortcode', '' ) ) ) : ?>
-					<section class="shopblocks-sidebar-block shopblocks-sidebar-block--newsletter"><?php echo do_shortcode( '[shopblocks_newsletter title="' . esc_attr( $newsletter_title ?: __( 'Join Our Mailing List.', 'shopblocks-wp' ) ) . '" description="' . esc_attr( $newsletter_text ) . '"]' ); ?></section>
+				<?php if ( '1' === $newsletter && trim( (string) $newsletter_embed ) ) : ?>
+					<section class="shopblocks-sidebar-block shopblocks-sidebar-block--newsletter">
+						<?php if ( $newsletter_title ) : ?><h2 class="shopblocks-newsletter__title"><?php echo esc_html( $newsletter_title ); ?></h2><?php endif; ?>
+						<?php if ( $newsletter_text ) : ?><p class="shopblocks-newsletter__description"><?php echo esc_html( $newsletter_text ); ?></p><?php endif; ?>
+						<div class="shopblocks-newsletter__form"><?php echo shopblocks_render_embed_content( $newsletter_embed ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
+					</section>
 				<?php endif; ?>
 				<?php if ( shopblocks_has_woocommerce() && $product_ids ) : ?><section class="shopblocks-sidebar-block shopblocks-sidebar-block--products" aria-label="<?php esc_attr_e( 'Featured products', 'shopblocks-wp' ); ?>"><?php echo do_shortcode( '[shopblocks_products ids="' . esc_attr( $product_ids ) . '" limit="12" columns="1" layout="sidebar" class="shopblocks-sidebar-products"]' ); ?></section><?php endif; ?>
 				<?php if ( trim( (string) $helpful ) ) : ?><section class="shopblocks-sidebar-block shopblocks-sidebar-block--links"><?php echo shopblocks_render_helpful_links( $helpful, $helpful_heading ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></section><?php endif; ?>
