@@ -2,6 +2,16 @@
 
 ShopBlocks provides structured Blogs, landing Articles, shoppable Collections, reusable Block Editor patterns, optional WooCommerce commerce components, and built-in structured data. Native WordPress Posts remain untouched unless an administrator explicitly runs the Posts → ShopBlocks Blogs migration tool.
 
+## 2.2.4 — Native WordPress Updates
+
+- Added native **Update now** support through WordPress' Plugin Upgrader.
+- ShopBlocks now uses the ZIP asset attached to the latest published GitHub Release as the update package.
+- Release assets are detected dynamically; filenames must begin with `shopblocks-wp-` and end with `.zip`.
+- Assets containing the current release version are preferred.
+- If a release has no valid ShopBlocks ZIP asset, the update remains notification-only.
+- Added a defensive upgrader source-normalization safeguard to keep the installed plugin directory as `shopblocks-wp`.
+- Existing six-hour release caching and manual **Check for updates** functionality remain in place.
+
 ## 2.2.3 — Configurable Content Slugs
 
 - Added configurable Blog and Collection URL bases under ShopBlocks Settings.
