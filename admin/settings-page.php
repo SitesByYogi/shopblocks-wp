@@ -106,7 +106,7 @@ function shopblocks_register_settings() {
 	add_settings_field( 'shopblocks_enable_schema', __( 'Enable Structured Data', 'shopblocks-wp' ), 'shopblocks_enable_schema_callback', 'shopblocks-settings', 'shopblocks_main_section' );
 	add_settings_field( 'shopblocks_default_blog_newsletter_embed', __( 'Default Blog Newsletter / Signup Embed', 'shopblocks-wp' ), 'shopblocks_default_blog_newsletter_embed_callback', 'shopblocks-settings', 'shopblocks_main_section' );
 	add_settings_field( 'shopblocks_lead_form_shortcode', __( 'Default Lead Form / Booking Shortcode', 'shopblocks-wp' ), 'shopblocks_lead_form_shortcode_callback', 'shopblocks-settings', 'shopblocks_main_section' );
-	add_settings_field( 'shopblocks_default_blog_sidebar_products', __( 'Default Blog Sidebar Product IDs', 'shopblocks-wp' ), 'shopblocks_default_blog_sidebar_products_callback', 'shopblocks-settings', 'shopblocks_main_section' );
+	add_settings_field( 'shopblocks_default_blog_sidebar_products', __( 'Default Blog Sidebar Products', 'shopblocks-wp' ), 'shopblocks_default_blog_sidebar_products_callback', 'shopblocks-settings', 'shopblocks_main_section' );
 
 	add_settings_section( 'shopblocks_permalink_section', __( 'Permalinks / URL Bases', 'shopblocks-wp' ), 'shopblocks_permalink_section_callback', 'shopblocks-settings' );
 	add_settings_field( 'shopblocks_blog_slug', __( 'Blog URL Base', 'shopblocks-wp' ), 'shopblocks_blog_slug_callback', 'shopblocks-settings', 'shopblocks_permalink_section' );
@@ -162,7 +162,15 @@ function shopblocks_default_blog_newsletter_embed_callback() {
 }
 function shopblocks_lead_form_shortcode_callback() { printf( '<input type="text" name="shopblocks_lead_form_shortcode" value="%s" class="regular-text code" placeholder="[wpforms id=&quot;123&quot;]"><p class="description">%s</p>', esc_attr( get_option( 'shopblocks_lead_form_shortcode', '' ) ), esc_html__( 'Provider-agnostic fallback for Blog/Article hero and sidebar forms. Per-post shortcodes override this value.', 'shopblocks-wp' ) ); }
 function shopblocks_default_blog_sidebar_products_callback() {
-	printf( '<input type="text" name="shopblocks_default_blog_sidebar_products" value="%s" class="regular-text code" placeholder="9525,448498"><p class="description">%s</p>', esc_attr( get_option( 'shopblocks_default_blog_sidebar_products', '' ) ), esc_html__( 'Default WooCommerce product IDs used by Blogs that do not have a Blog-specific override. Editors can replace these IDs per Blog or disable inherited products on that Blog.', 'shopblocks-wp' ) );
+	shopblocks_render_product_selector(
+		'shopblocks_default_blog_sidebar_products',
+		get_option( 'shopblocks_default_blog_sidebar_products', '' ),
+		array(
+			'id'          => 'default-blog-sidebar-products',
+			'label'       => __( 'Default Blog Sidebar Products', 'shopblocks-wp' ),
+			'description' => __( 'Search WooCommerce products and drag them into the default sidebar order. Blogs inherit this list unless they provide their own override or disable sidebar products.', 'shopblocks-wp' ),
+		)
+	);
 }
 function shopblocks_permalink_section_callback() {
 	printf(

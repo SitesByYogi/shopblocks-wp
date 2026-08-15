@@ -2,7 +2,7 @@
 /**
  * Plugin Name: ShopBlocks WP
  * Description: Structured WordPress Blogs, landing Articles, shoppable Collections, integrated schema output, and optional WooCommerce integrations.
- * Version: 2.2.5
+ * Version: 2.3.0
  * Author: SitesByYogi
  * Text Domain: shopblocks-wp
  * Requires at least: 6.3
@@ -19,13 +19,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SHOPBLOCKS_PLUGIN_VERSION', '2.2.5' );
+define( 'SHOPBLOCKS_PLUGIN_VERSION', '2.3.0' );
 define( 'SHOPBLOCKS_PLUGIN_FILE', __FILE__ );
 define( 'SHOPBLOCKS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SHOPBLOCKS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 require_once SHOPBLOCKS_PLUGIN_DIR . 'includes/class-shopblocks-update-notifier.php';
 require_once SHOPBLOCKS_PLUGIN_DIR . 'includes/permalinks.php';
+require_once SHOPBLOCKS_PLUGIN_DIR . 'includes/product-selector.php';
 
 
 /**
@@ -326,9 +327,17 @@ function shopblocks_collection_products_meta_box( $post ) {
 	wp_nonce_field( 'shopblocks_save_collection_products', 'shopblocks_collection_products_nonce' );
 	$value = get_post_meta( $post->ID, '_shopblocks_product_ids', true );
 	?>
-	<p><?php esc_html_e( 'Enter WooCommerce product IDs in the order they should appear, separated by commas.', 'shopblocks-wp' ); ?></p>
-	<input type="text" class="widefat" name="shopblocks_product_ids" value="<?php echo esc_attr( $value ); ?>" placeholder="123, 456, 789">
-	<p class="description"><?php esc_html_e( 'The collection page will render these products using the ShopBlocks product grid.', 'shopblocks-wp' ); ?></p>
+	<?php
+	shopblocks_render_product_selector(
+		'shopblocks_product_ids',
+		$value,
+		array(
+			'id'          => 'collection-products-' . $post->ID,
+			'label'       => __( 'Collection Products', 'shopblocks-wp' ),
+			'description' => __( 'Search WooCommerce products and drag selected products into the order they should appear. The Collection page renders this order using the ShopBlocks product grid.', 'shopblocks-wp' ),
+		)
+	);
+	?>
 	<?php
 }
 
