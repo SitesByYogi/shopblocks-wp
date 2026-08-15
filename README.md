@@ -2,6 +2,19 @@
 
 ShopBlocks provides structured Blogs, landing Articles, shoppable Collections, reusable Block Editor patterns, optional WooCommerce commerce components, and built-in structured data.
 
+## 2.3.0 — Product Selector UI
+
+- Replaced manual WooCommerce product-ID entry with a reusable searchable product selector.
+- Added AJAX product search by product text/name and partial SKU without loading the full catalog into the editor.
+- Added product thumbnails, names, IDs, SKUs, prices, and stock status to the selection interface.
+- Added drag-and-drop sorting for selected products.
+- Added one-click product removal and duplicate-selection protection.
+- Added the selector to Collection Products, Blog Sidebar Products, and Default Blog Sidebar Products.
+- Preserved the existing comma-separated product ID storage format for full backward compatibility with existing content, shortcodes, templates, and frontend rendering.
+- Product selector assets load only on relevant ShopBlocks admin screens.
+- Search results are limited to 20 products per request to keep large WooCommerce catalogs responsive.
+- The reusable selector is structured so future commerce providers can supply products without changing the editor workflow.
+
 ## 2.2.5 — Migration Tool Cleanup
 
 - Removed the ShopBlocks Migration admin screen from new and upgraded installations.

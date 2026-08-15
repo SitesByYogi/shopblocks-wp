@@ -142,14 +142,21 @@ function shopblocks_blog_sidebar_meta_box( $post ) {
 	<p><label><strong><?php esc_html_e( 'Newsletter supporting text (optional)', 'shopblocks-wp' ); ?></strong><br><textarea class="widefat" rows="2" name="shopblocks_newsletter_description"><?php echo esc_textarea( $newsletter_text ); ?></textarea></label></p>
 	<?php if ( shopblocks_has_woocommerce() ) : ?>
 		<hr><p><strong><?php esc_html_e( 'Commerce module — Sidebar Products', 'shopblocks-wp' ); ?></strong></p>
-		<input type="text" class="widefat" name="shopblocks_sidebar_product_ids" value="<?php echo esc_attr( $product_ids ); ?>" placeholder="123, 456">
-		<p class="description">
-			<?php if ( ! $stored_product_ids && $default_product_ids ) : ?>
-				<?php esc_html_e( 'Using the global ShopBlocks default. Change these IDs to create a Blog-specific override.', 'shopblocks-wp' ); ?>
-			<?php else : ?>
-				<?php esc_html_e( 'Optional WooCommerce product IDs in display order. Blog-specific values override the global default.', 'shopblocks-wp' ); ?>
-			<?php endif; ?>
-		</p>
+		<?php
+		$selector_description = ( ! $stored_product_ids && $default_product_ids )
+			? __( 'Using the global ShopBlocks default. Add, remove, or reorder products here to create a Blog-specific override.', 'shopblocks-wp' )
+			: __( 'Search WooCommerce products and drag them into display order. Blog-specific selections override the global default.', 'shopblocks-wp' );
+
+		shopblocks_render_product_selector(
+			'shopblocks_sidebar_product_ids',
+			$product_ids,
+			array(
+				'id'          => 'blog-sidebar-products-' . $post->ID,
+				'label'       => __( 'Sidebar Products', 'shopblocks-wp' ),
+				'description' => $selector_description,
+			)
+		);
+		?>
 		<p><label><input type="checkbox" name="shopblocks_disable_sidebar_products" value="1" <?php checked( $disable_products ); ?>> <?php esc_html_e( 'Disable sidebar products for this Blog', 'shopblocks-wp' ); ?></label></p>
 	<?php else : ?>
 		<input type="hidden" name="shopblocks_sidebar_product_ids" value="<?php echo esc_attr( $stored_product_ids ); ?>">
