@@ -1,6 +1,6 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) { exit; }
-wp_enqueue_style( 'shopblocks-editorial-conversion', SHOPBLOCKS_PLUGIN_URL . 'assets/editorial-conversion.css', array( 'shopblocks-wp' ), SHOPBLOCKS_PLUGIN_VERSION );
+wp_enqueue_style( 'shopblocks-editorial-conversion', SHOPBLOCKS_PLUGIN_URL . 'assets/editorial-conversion.css', array( 'shopblocks-style' ), SHOPBLOCKS_PLUGIN_VERSION );
 shopblocks_render_theme_header();
 while ( have_posts() ) : the_post();
 	$post_id          = get_the_ID();
@@ -40,7 +40,6 @@ while ( have_posts() ) : the_post();
 				<?php if ( $form_shortcode ) : ?><div class="shopblocks-article__hero-conversion"><?php echo shopblocks_render_lead_form( $post_id, '_shopblocks_hero_form_shortcode' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div><?php endif; ?>
 			</div>
 		</header>
-
 		<div class="shopblocks-article__body">
 			<?php if ( $has_location ) : ?>
 			<section class="shopblocks-location" aria-label="<?php esc_attr_e( 'Location information', 'shopblocks-wp' ); ?>">
@@ -53,10 +52,7 @@ while ( have_posts() ) : the_post();
 				</div>
 			</section>
 			<?php endif; ?>
-
-			<article class="shopblocks-article__content">
-				<div class="shopblocks-gutenberg-content"><?php the_content(); ?></div>
-			</article>
+			<article class="shopblocks-article__content"><div class="shopblocks-gutenberg-content"><?php the_content(); ?></div></article>
 			<?php echo shopblocks_render_faqs( $faqs, $faq_heading ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 		</div>
 	</main>
