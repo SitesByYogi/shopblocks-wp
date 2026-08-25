@@ -1,5 +1,6 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) { exit; }
+wp_enqueue_style( 'shopblocks-editorial-conversion', SHOPBLOCKS_PLUGIN_URL . 'assets/editorial-conversion.css', array( 'shopblocks-wp' ), SHOPBLOCKS_PLUGIN_VERSION );
 shopblocks_render_theme_header();
 while ( have_posts() ) : the_post();
 	$post_id          = get_the_ID();
