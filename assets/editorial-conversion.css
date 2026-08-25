@@ -1,0 +1,60 @@
+/* ShopBlocks editorial conversion refinements. */
+
+/* BLOG: editorial image hero + conversion card. */
+.shopblocks-blog.has-hero-conversion .shopblocks-blog__hero { min-height:var(--shopblocks-blog-hero-height,520px); padding-block:clamp(48px,7vw,84px); }
+.shopblocks-blog.has-hero-conversion .shopblocks-blog__hero-shell { grid-template-columns:minmax(0,1fr) minmax(320px,var(--shopblocks-blog-form-width,430px)); gap:clamp(32px,5vw,72px); }
+.shopblocks-blog.has-hero-conversion .shopblocks-blog__hero-content { max-width:650px; }
+.shopblocks-blog.has-hero-conversion .shopblocks-blog__title { font-size:clamp(36px,4.6vw,58px); line-height:1.08; }
+.shopblocks-blog__hero-conversion,.shopblocks-article__hero-conversion { color:var(--shopblocks-form-text,var(--shopblocks-color-text,#1f2933)); }
+.shopblocks-blog__hero-conversion .shopblocks-lead-form,.shopblocks-article__hero-conversion .shopblocks-lead-form { padding:var(--shopblocks-form-card-padding,clamp(22px,3vw,32px)); background:var(--shopblocks-form-card-background,#fff); border:1px solid var(--shopblocks-form-card-border,rgba(17,24,39,.12)); border-radius:var(--shopblocks-form-card-radius,var(--shopblocks-radius-small,6px)); box-shadow:var(--shopblocks-form-card-shadow,0 12px 36px rgba(17,24,39,.12)); }
+
+/* Gravity Forms styling stays scoped to ShopBlocks lead slots. */
+.shopblocks-blog__hero-conversion .gform_wrapper,.shopblocks-article__hero-conversion .gform_wrapper,.shopblocks-sidebar-block--form .gform_wrapper { margin:0; }
+.shopblocks-blog__hero-conversion .gform_wrapper .gform_fields,.shopblocks-article__hero-conversion .gform_wrapper .gform_fields,.shopblocks-sidebar-block--form .gform_wrapper .gform_fields { row-gap:var(--shopblocks-form-field-gap,12px); }
+.shopblocks-blog__hero-conversion .gform_wrapper input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]),.shopblocks-blog__hero-conversion .gform_wrapper select,.shopblocks-blog__hero-conversion .gform_wrapper textarea,.shopblocks-article__hero-conversion .gform_wrapper input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]),.shopblocks-article__hero-conversion .gform_wrapper select,.shopblocks-article__hero-conversion .gform_wrapper textarea,.shopblocks-sidebar-block--form .gform_wrapper input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]),.shopblocks-sidebar-block--form .gform_wrapper select,.shopblocks-sidebar-block--form .gform_wrapper textarea { min-height:var(--shopblocks-form-control-height,46px); padding:10px 12px; border:1px solid var(--shopblocks-form-control-border,var(--shopblocks-color-border,#d9dde3)); border-radius:var(--shopblocks-form-control-radius,0); background:var(--shopblocks-form-control-background,#f5f5f5); color:var(--shopblocks-form-text,var(--shopblocks-color-text,#1f2933)); }
+.shopblocks-blog__hero-conversion .gform_wrapper .gform_footer,.shopblocks-article__hero-conversion .gform_wrapper .gform_footer,.shopblocks-sidebar-block--form .gform_wrapper .gform_footer { margin-top:12px; padding-bottom:0; }
+.shopblocks-blog__hero-conversion .gform_wrapper input[type="submit"],.shopblocks-blog__hero-conversion .gform_wrapper button[type="submit"],.shopblocks-article__hero-conversion .gform_wrapper input[type="submit"],.shopblocks-article__hero-conversion .gform_wrapper button[type="submit"],.shopblocks-sidebar-block--form .gform_wrapper input[type="submit"],.shopblocks-sidebar-block--form .gform_wrapper button[type="submit"] { width:100%; min-height:46px; margin:0; padding:11px 18px; border:1px solid var(--shopblocks-color-primary,#1ea5e8); border-radius:var(--shopblocks-button-radius,0); background:var(--shopblocks-color-primary,#1ea5e8); color:var(--shopblocks-color-button-text,#fff); font:inherit; font-weight:700; cursor:pointer; }
+
+/* BLOG: article/sidebar proportions and unified CTA + helpful links treatment. */
+.shopblocks-blog.has-sidebar .shopblocks-blog__layout { grid-template-columns:minmax(0,var(--shopblocks-article-width,800px)) minmax(260px,var(--shopblocks-sidebar-width,310px)); gap:clamp(32px,4vw,56px); }
+.shopblocks-blog__sidebar .shopblocks-sidebar-block--cta,.shopblocks-blog__sidebar .shopblocks-sidebar-block--links { border-radius:0; }
+.shopblocks-blog__sidebar .shopblocks-sidebar-block--cta { padding:14px; }
+.shopblocks-blog__sidebar .shopblocks-sidebar-block--cta .shopblocks-sidebar-cta { border:0; border-radius:0; }
+.shopblocks-blog__sidebar .shopblocks-sidebar-block--cta .shopblocks-sidebar-cta__body { padding:16px 0 0; }
+.shopblocks-blog__sidebar .shopblocks-sidebar-block--cta + .shopblocks-sidebar-block--links { margin-top:0; border-top:0; }
+.shopblocks-blog__sidebar .shopblocks-sidebar-block--links { padding-block:18px; }
+.shopblocks-blog__sidebar .shopblocks-helpful-links__title { font-size:18px; }
+.shopblocks-blog__sidebar .shopblocks-helpful-links__list a { padding-block:12px; font-size:14px; }
+
+/* ARTICLE: conversion-first landing article, intentionally no Blog sidebar. */
+.shopblocks-article__hero.has-no-background .shopblocks-article__hero-overlay { display:none; }
+.shopblocks-article__hero.has-no-background { background:var(--shopblocks-article-hero-background,var(--shopblocks-color-primary,#1ea5e8)); }
+.shopblocks-article__hero-shell { min-height:var(--shopblocks-article-hero-min-height,430px); padding-block:clamp(52px,7vw,84px); }
+.shopblocks-article.has-hero-conversion .shopblocks-article__hero-shell { grid-template-columns:minmax(0,1fr) minmax(360px,var(--shopblocks-article-form-width,520px)); gap:clamp(36px,5vw,72px); }
+.shopblocks-article__hero-copy { max-width:650px; }
+.shopblocks-article__title { font-size:clamp(38px,5vw,62px); line-height:1.08; }
+.shopblocks-article__description { margin-bottom:0; font-size:16px; line-height:1.65; }
+.shopblocks-article .shopblocks-hero-actions { gap:16px; margin-top:28px; }
+.shopblocks-article .shopblocks-button { min-height:46px; padding-inline:24px; }
+.shopblocks-article__body { padding-block:clamp(42px,6vw,70px) 80px; }
+.shopblocks-location { grid-template-columns:minmax(0,1.55fr) minmax(260px,.75fr); gap:clamp(28px,5vw,56px); align-items:start; margin-bottom:clamp(38px,5vw,60px); }
+.shopblocks-location__map iframe { min-height:var(--shopblocks-location-map-height,400px); }
+.shopblocks-location__details { padding-top:4px; }
+.shopblocks-location__title { margin-bottom:18px; font-size:16px; letter-spacing:.08em; text-transform:uppercase; }
+.shopblocks-location__address,.shopblocks-location__phone,.shopblocks-location__email { margin:0 0 14px; }
+.shopblocks-article__content + .shopblocks-faq--automatic { margin-top:52px; }
+
+@media (max-width:900px) {
+ .shopblocks-blog.has-hero-conversion .shopblocks-blog__hero-shell,.shopblocks-article.has-hero-conversion .shopblocks-article__hero-shell { grid-template-columns:1fr; }
+ .shopblocks-blog.has-hero-conversion .shopblocks-blog__hero-content,.shopblocks-article__hero-copy { max-width:none; }
+ .shopblocks-blog__hero-conversion,.shopblocks-article__hero-conversion { width:min(100%,600px); margin-inline:auto; }
+}
+@media (max-width:600px) {
+ .shopblocks-blog.has-hero-conversion .shopblocks-blog__hero { min-height:0; padding-block:42px; }
+ .shopblocks-blog.has-hero-conversion .shopblocks-blog__hero-content { text-align:left; }
+ .shopblocks-blog.has-hero-conversion .shopblocks-blog__meta,.shopblocks-blog.has-hero-conversion .shopblocks-hero-actions { justify-content:flex-start; }
+ .shopblocks-blog__hero-conversion .shopblocks-lead-form,.shopblocks-article__hero-conversion .shopblocks-lead-form { padding:18px; }
+ .shopblocks-article__hero-shell { min-height:0; padding-block:42px; }
+ .shopblocks-article__title { font-size:clamp(34px,11vw,46px); }
+ .shopblocks-location__map iframe { min-height:300px; }
+}
